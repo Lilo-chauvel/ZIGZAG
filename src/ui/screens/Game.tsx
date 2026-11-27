@@ -3,7 +3,7 @@ import { centerCell, moveCursor } from "../../core/cursor";
 import { availableDirs, dirsOf, newGame, reduce } from "../../core/game";
 import { DIFFICULTIES, generate } from "../../core/grid";
 import type { Cell, Difficulty, Dir } from "../../core/types";
-import { addMiss, addWin, breakStreak, formatMs } from "../../store/palmares";
+import { addMiss, addWin } from "../../store/palmares";
 import { Board } from "../components/Board";
 import { ArrowPad, Button, Hint, Hud } from "../components/controls";
 import { ringOrigin, WinRing } from "../components/WinRing";
@@ -49,7 +49,7 @@ export function Game({ difficulty, seed, onMenu, onNewGrid }: Props) {
     if (!won || saved.current || state.startedAt == null || state.endedAt == null) return;
     saved.current = true;
     if (assisted) return addMiss({ difficulty, seed, outcome: "solve", left: 0, date: Date.now(), start: state.path[0], dirs: dirsOf(state) });
-    addWin({ difficulty, seed, moves: state.moveEnds.length, ms: state.endedAt - state.startedAt, date: Date.now(), start: state.path[0], dirs: dirsOf(state) });
+    addWin({ difficulty, seed, moves: state.moveEnds.length, date: Date.now(), start: state.path[0], dirs: dirsOf(state) });
   }, [won, assisted, state, difficulty, seed]);
   useEffect(() => {
     if (!won) saved.current = false;
@@ -57,7 +57,6 @@ export function Game({ difficulty, seed, onMenu, onNewGrid }: Props) {
 
   const leave = (then: () => void) => {
     if (!won && state.path.length > 0) {
-      breakStreak(difficulty);
       addMiss({ difficulty, seed, outcome: assisted ? "solve" : "abandon", left: state.cells - state.path.length, date: Date.now(), start: state.path[0], dirs: dirsOf(state) });
     }
     then();
@@ -81,7 +80,6 @@ export function Game({ difficulty, seed, onMenu, onNewGrid }: Props) {
   const restart = () => !solving && (!won || ended) && dispatch({ type: "recommencer" });
   const solveIt = () => {
     if (solving || won) return;
-    breakStreak(difficulty);
     setAssisted(true);
     queued.current = null;
     dispatch({ type: "recommencer" });
@@ -206,7 +204,7 @@ export function Game({ difficulty, seed, onMenu, onNewGrid }: Props) {
         {ended && state.startedAt != null && state.endedAt != null && (
           <>
             <h2 className={s.headline}>{assisted ? T.solved : state.rewinds === 0 ? T.perfect : T.clear}</h2>
-            <p className={s.body}>{T.clearBody(state.cells, state.moveEnds.length, formatMs(state.endedAt - state.startedAt))}</p>
+            <p className={s.body}>{T.clearBody(state.cells, state.moveEnds.length)}</p>
             <div className={s.actions}>
               <Button shortcut="Espace" onClick={onNewGrid} autoFocus>
                 {T.nextStage}

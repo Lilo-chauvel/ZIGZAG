@@ -1,43 +1,30 @@
-import { addMiss, addWin, breakStreak, formatMs, list, listMisses, stats } from "./palmares";
+import { addMiss, addWin, list, listMisses } from "./palmares";
 
 beforeEach(() => localStorage.clear());
 
-it("enregistre et compte les victoires par difficulté", () => {
-  addWin({ difficulty: "normal", seed: 1, moves: 10, ms: 72_000, date: 1 });
-  addWin({ difficulty: "normal", seed: 2, moves: 12, ms: 48_000, date: 2 });
-  addWin({ difficulty: "facile", seed: 3, moves: 5, ms: 20_000, date: 3 });
+it("enregistre les victoires par difficulté, la plus récente d'abord", () => {
+  addWin({ difficulty: "normal", seed: 1, moves: 10, date: 1 });
+  addWin({ difficulty: "normal", seed: 2, moves: 12, date: 2 });
+  addWin({ difficulty: "facile", seed: 3, moves: 5, date: 3 });
   expect(list("normal").map((w) => w.seed)).toEqual([2, 1]);
-  expect(stats("normal")).toEqual({ wins: 2, bestMs: 48_000, streak: 2 });
-  expect(stats("difficile")).toEqual({ wins: 0, bestMs: null, streak: 0 });
+  expect(list("difficile")).toEqual([]);
 });
 
-it("un abandon casse la série sans effacer les victoires", () => {
-  addWin({ difficulty: "facile", seed: 1, moves: 5, ms: 1000, date: 1 });
-  breakStreak("facile");
-  expect(stats("facile")).toMatchObject({ wins: 1, streak: 0 });
-});
-
-it("garde les stages non réussis à part, hors stats", () => {
+it("garde les stages non réussis à part des victoires", () => {
   addMiss({ difficulty: "normal", seed: 4, outcome: "abandon", left: 6, date: 1 });
   addMiss({ difficulty: "facile", seed: 5, outcome: "solve", left: 0, date: 2 });
   expect(listMisses("normal").map((m) => m.seed)).toEqual([4]);
-  expect(stats("normal")).toMatchObject({ wins: 0, bestMs: null });
+  expect(list("normal")).toEqual([]);
 });
 
 it("survit à un stockage indisponible", () => {
-  const spy = vi.spyOn(Storage.prototype, "getItem").mockImplementation(() => {
+  vi.spyOn(Storage.prototype, "getItem").mockImplementation(() => {
     throw new Error("bloqué");
   });
   vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => {
     throw new Error("bloqué");
   });
-  expect(() => addWin({ difficulty: "facile", seed: 1, moves: 1, ms: 1, date: 1 })).not.toThrow();
+  expect(() => addWin({ difficulty: "facile", seed: 1, moves: 1, date: 1 })).not.toThrow();
   expect(list("facile")).toEqual([]);
-  spy.mockRestore();
   vi.restoreAllMocks();
-});
-
-it("formate les temps", () => {
-  expect(formatMs(48_000)).toBe("0:48");
-  expect(formatMs(125_400)).toBe("2:05");
 });

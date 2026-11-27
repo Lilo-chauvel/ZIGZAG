@@ -32,10 +32,6 @@
 
 /* Palmarès */
 .header { display: flex; justify-content: space-between; align-items: center; }
-.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
-.stat { display: grid; gap: var(--space-1); }
-.statValue { font-family: var(--font-mono); font-size: 20px; line-height: 24px; font-weight: 500; font-variant-numeric: tabular-nums; }
-.statAccent { color: var(--trail); }
 .list { display: grid; gap: var(--space-2); }
 .row {
   display: flex; align-items: center; gap: 12px; width: 100%; padding: 10px;
@@ -47,6 +43,5 @@
 .rowText { display: grid; gap: var(--space-1); flex: 1; min-width: 0; }
 .rowTitle { font-weight: 500; line-height: 20px; }
 .rowMeta, .rowDate { font-family: var(--font-mono); font-size: 12px; line-height: 16px; color: var(--ink-muted); font-variant-numeric: tabular-nums; }
-.rowBest { color: var(--trail); }
 .rowMiss { color: var(--danger); }
 .empty { padding: var(--space-4) var(--space-3); color: var(--ink-muted); border: 1px dashed var(--hairline); border-radius: var(--radius-sm); }

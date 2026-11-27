@@ -136,9 +136,19 @@ it("le START se choisit entièrement au clavier", () => {
 it("le menu change de difficulté au clavier et lance la partie", () => {
   const onPlay = vi.fn();
   render(<Menu initial="normal" onPlay={onPlay} onPalmares={() => {}} />);
-  fireEvent.keyDown(window, { key: "ArrowDown" });
+  fireEvent.keyDown(window, { key: "ArrowRight" });
   fireEvent.keyDown(window, { key: " " });
   expect(onPlay).toHaveBeenCalledWith("difficile");
+});
+
+it("la difficulté ne s'affiche que quand START est sélectionné", () => {
+  const onPalmares = vi.fn();
+  render(<Menu initial="facile" onPlay={() => {}} onPalmares={onPalmares} />);
+  expect(screen.getByRole("tablist")).toBeTruthy();
+  fireEvent.keyDown(window, { key: "ArrowDown" });
+  expect(screen.queryByRole("tablist")).toBeNull();
+  fireEvent.keyDown(window, { key: "Enter" });
+  expect(onPalmares).toHaveBeenCalledWith("facile");
 });
 
 it("une touche pressée pendant une glissade est jouée ensuite", () => {

@@ -15,8 +15,8 @@ Le code et ses noms de domaine restent en français (`placer`, `glisser`, `gagn�
 | `bloqué` / `gagné` | GAME OVER / CLEAR! (PERFECT! si `rewinds === 0`) |
 | `annuler` / `recommencer` / nouvelle grille | REWIND / RETRY / NEXT STAGE |
 | résolution auto (`gen.solution` rejouée, hors Palmarès) | SOLVE → SOLVED |
-| facile · normal · difficile | EASY · NORMAL · HARD |
-| Palmarès (`store/palmares.ts`) | HIGH SCORES (réussies = CLEARS, série = COMBO ; les non réussies `Miss` sont listées mais hors stats) |
+| facile · normal · difficile | EASY · NORMAL · HARD (onglets, au menu sous START) |
+| Palmarès (`store/palmares.ts`) | HIGH SCORES (historique par difficulté, sans temps ni stats ; les non réussies `Miss` y sont listées à part) |
 
 ## Workflow git
 

@@ -1,7 +1,7 @@
 import { useMemo, useRef, useState } from "react";
 import { DIFFICULTY_ORDER, generate, replay } from "../../core/grid";
 import type { Difficulty } from "../../core/types";
-import { formatMs, list, listMisses, stats, type Miss, type Win } from "../../store/palmares";
+import { list, listMisses, type Miss, type Win } from "../../store/palmares";
 import { Board } from "../components/Board";
 import { Hint, Tabs } from "../components/controls";
 import { useKeyboard } from "../hooks/useKeyboard";
@@ -20,7 +20,7 @@ const MAX_ROWS = 50;
 /** Entrée de l'historique : victoire, ou stage non réussi (`miss`). */
 type Entry = { kind: "win"; win: Win } | { kind: "miss"; miss: Miss };
 
-function Row({ entry, best, onReplay }: { entry: Entry; best: boolean; onReplay: () => void }) {
+function Row({ entry, onReplay }: { entry: Entry; onReplay: () => void }) {
   const e = entry.kind === "win" ? entry.win : entry.miss;
   const { grid, path } = useMemo(() => {
     const g = generate(e.difficulty, e.seed);
@@ -31,7 +31,7 @@ function Row({ entry, best, onReplay }: { entry: Entry; best: boolean; onReplay:
   const abandon = entry.kind === "miss" && entry.miss.outcome === "abandon";
   const meta =
     entry.kind === "win"
-      ? `${T.dashes(entry.win.moves)} · ${formatMs(entry.win.ms)}${best ? ` · ${T.best}` : ""}`
+      ? T.dashes(entry.win.moves)
       : abandon
         ? T.missAbandon(entry.miss.left)
         : T.missSolve;
@@ -42,7 +42,7 @@ function Row({ entry, best, onReplay }: { entry: Entry; best: boolean; onReplay:
       </span>
       <span className={s.rowText}>
         <span className={s.rowTitle}>{T.stage(e.seed)}</span>
-        <span className={[s.rowMeta, best ? s.rowBest : "", abandon ? s.rowMiss : ""].join(" ")}>{meta}</span>
+        <span className={[s.rowMeta, abandon ? s.rowMiss : ""].join(" ")}>{meta}</span>
       </span>
       <span className={s.rowDate}>{dateFmt.format(e.date)}</span>
     </button>
@@ -59,7 +59,6 @@ export function Palmares({ initial, onMenu, onReplay }: Props) {
       ),
     [tab],
   );
-  const st = useMemo(() => stats(tab), [tab]);
   const shift = (delta: number) => {
     const i = DIFFICULTY_ORDER.indexOf(tab);
     setTab(DIFFICULTY_ORDER[(i + delta + DIFFICULTY_ORDER.length) % DIFFICULTY_ORDER.length]);
@@ -87,20 +86,6 @@ export function Palmares({ initial, onMenu, onReplay }: Props) {
 
       <Tabs items={DIFFICULTY_ORDER.map((d) => ({ id: d, label: T.difficulties[d] }))} value={tab} onChange={setTab} />
 
-      <div className={s.stats}>
-        <div className={s.stat}>
-          <span className={s.statValue}>{st.wins}</span>
-          <span className={s.caption}>{T.statClears}</span>
-        </div>
-        <div className={s.stat}>
-          <span className={s.statValue}>{st.bestMs == null ? "–" : formatMs(st.bestMs)}</span>
-          <span className={s.caption}>{T.statBest}</span>
-        </div>
-        <div className={s.stat}>
-          <span className={[s.statValue, st.streak > 0 ? s.statAccent : ""].join(" ")}>{st.streak}</span>
-          <span className={s.caption}>{T.statCombo}</span>
-        </div>
-      </div>
 
       {entries.length === 0 ? (
         <p className={s.empty}>{T.empty(tab)}</p>
@@ -108,7 +93,7 @@ export function Palmares({ initial, onMenu, onReplay }: Props) {
         <div className={s.list} ref={listRef}>
           {entries.slice(0, MAX_ROWS).map((en) => {
             const e = en.kind === "win" ? en.win : en.miss;
-            return <Row key={`${en.kind}-${e.seed}-${e.date}`} entry={en} best={en.kind === "win" && en.win.ms === st.bestMs} onReplay={() => onReplay(e.difficulty, e.seed)} />;
+            return <Row key={`${en.kind}-${e.seed}-${e.date}`} entry={en} onReplay={() => onReplay(e.difficulty, e.seed)} />;
           })}
         </div>
       )}

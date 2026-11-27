@@ -14,7 +14,6 @@ export const T = {
     normal: "7 × 7 · environ 38 cases",
     difficile: "9 × 9 · environ 56 cases",
   } as Record<Difficulty, string>,
-  clears: (n: number) => `${n} clear${n > 1 ? "s" : ""}`,
 
   start: "START",
   highScores: "HIGH SCORES",
@@ -35,12 +34,8 @@ export const T = {
   clear: "CLEAR!",
   perfect: "PERFECT!",
   solved: "SOLVED",
-  clearBody: (cells: number, dashes: number, time: string) => `${cells} cases en ${dashes} dashs · ${time}`,
+  clearBody: (cells: number, dashes: number) => `${cells} cases en ${dashes} dashs`,
 
-  statClears: "CLEARS",
-  statBest: "BEST TIME",
-  statCombo: "COMBO",
-  best: "BEST",
   dashes: (n: number) => `${n} dashs`,
   replay: "Rejouer le stage",
   missAbandon: (left: number) => `GAME OVER · reste ${left}`,

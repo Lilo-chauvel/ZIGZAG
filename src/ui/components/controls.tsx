@@ -67,30 +67,6 @@ export function Button({
   );
 }
 
-export function DifficultyOption({
-  name,
-  detail,
-  wins,
-  selected,
-  onSelect,
-}: {
-  name: string;
-  detail: string;
-  wins: string;
-  selected: boolean;
-  onSelect: () => void;
-}) {
-  return (
-    <button type="button" role="radio" aria-checked={selected} className={[s.option, selected ? s.optionSelected : ""].join(" ")} onClick={onSelect}>
-      <span className={s.optionText}>
-        <span className={s.optionName}>{name}</span>
-        <span className={s.optionDetail}>{detail}</span>
-      </span>
-      <span className={s.optionWins}>{wins}</span>
-    </button>
-  );
-}
-
 export function Tabs<T extends string>({ items, value, onChange }: { items: { id: T; label: string }[]; value: T; onChange: (v: T) => void }) {
   return (
     <div className={s.tabs} role="tablist">

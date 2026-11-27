@@ -1,8 +1,8 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { DIFFICULTY_ORDER } from "../../core/grid";
 import type { Difficulty } from "../../core/types";
-import { saveDifficulty, stats } from "../../store/palmares";
-import { Button, DifficultyOption, Hint } from "../components/controls";
+import { saveDifficulty } from "../../store/palmares";
+import { Button, Hint, Tabs } from "../components/controls";
 import { useKeyboard } from "../hooks/useKeyboard";
 import { T } from "../texts";
 import s from "./screens.module.css";
@@ -13,9 +13,11 @@ interface Props {
   onPalmares: (d: Difficulty) => void;
 }
 
+type Item = "start" | "scores";
+
 export function Menu({ initial, onPlay, onPalmares }: Props) {
+  const [focus, setFocus] = useState<Item>("start");
   const [selected, setSelected] = useState<Difficulty>(initial);
-  const wins = useMemo(() => Object.fromEntries(DIFFICULTY_ORDER.map((d) => [d, stats(d).wins])) as Record<Difficulty, number>, []);
 
   const select = (d: Difficulty) => {
     setSelected(d);
@@ -25,11 +27,16 @@ export function Menu({ initial, onPlay, onPalmares }: Props) {
     const i = DIFFICULTY_ORDER.indexOf(selected);
     select(DIFFICULTY_ORDER[Math.min(DIFFICULTY_ORDER.length - 1, Math.max(0, i + delta))]);
   };
+  const activate = () => (focus === "start" ? onPlay(selected) : onPalmares(selected));
 
   useKeyboard({
-    dir: (d) => (d === "haut" ? shift(-1) : d === "bas" ? shift(1) : undefined),
-    space: () => onPlay(selected),
-    enter: () => onPlay(selected),
+    dir: (d) => {
+      if (d === "haut") setFocus("start");
+      else if (d === "bas") setFocus("scores");
+      else if (focus === "start") shift(d === "gauche" ? -1 : 1);
+    },
+    space: activate,
+    enter: activate,
     h: () => onPalmares(selected),
   });
 
@@ -40,25 +47,29 @@ export function Menu({ initial, onPlay, onPalmares }: Props) {
         <p className={s.tagline}>{T.tagline}</p>
       </div>
 
-      <span className={s.caption}>{T.difficulty}</span>
-      <div className={s.stack} role="radiogroup" aria-label="Difficulté">
-        {DIFFICULTY_ORDER.map((d) => (
-          <DifficultyOption key={d} name={T.difficulties[d]} detail={T.difficultyDetail[d]} wins={T.clears(wins[d])} selected={d === selected} onSelect={() => select(d)} />
-        ))}
-      </div>
-
-      <div className={s.stack} style={{ marginTop: 8 }}>
-        <Button wide shortcut="Espace" onClick={() => onPlay(selected)}>
-          {T.start}
-        </Button>
-        <Button wide variant="secondary" shortcut="H" onClick={() => onPalmares(selected)}>
-          {T.highScores}
-        </Button>
+      <div className={s.stack}>
+        <div onFocus={() => setFocus("start")} className={s.stack}>
+          <Button wide variant={focus === "start" ? "primary" : "secondary"} shortcut={focus === "start" ? "Espace" : undefined} onClick={() => onPlay(selected)}>
+            {T.start}
+          </Button>
+          {focus === "start" && (
+            <>
+              <Tabs items={DIFFICULTY_ORDER.map((d) => ({ id: d, label: T.difficulties[d] }))} value={selected} onChange={select} />
+              <span className={s.caption}>{T.difficultyDetail[selected]}</span>
+            </>
+          )}
+        </div>
+        <div onFocus={() => setFocus("scores")}>
+          <Button wide variant={focus === "scores" ? "primary" : "secondary"} shortcut="H" onClick={() => onPalmares(selected)}>
+            {T.highScores}
+          </Button>
+        </div>
       </div>
 
       <div className={s.hints}>
-        <Hint k="↑↓">{T.difficulty}</Hint>
-        <Hint k="Espace">{T.start}</Hint>
+        <Hint k="↑↓">{T.moveCursor}</Hint>
+        {focus === "start" && <Hint k="←→">{T.difficulty}</Hint>}
+        <Hint k="Espace">{focus === "start" ? T.start : T.highScores}</Hint>
       </div>
     </main>
   );
