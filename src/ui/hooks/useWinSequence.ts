@@ -6,7 +6,7 @@ export type WinStage = "attente" | "retrace" | "anneau" | "fin";
 /**
  * Séquence de victoire :
  * 1. retrace : le chemin repasse en vert depuis le départ (une case / retrace-step) ;
- * 2. anneau  : l'anneau du départ grandit puis s'efface (ring-expand + ring-fade) ;
+ * 2. anneau  : l'anneau de la dernière case grandit puis s'efface (ring-expand + ring-fade) ;
  * 3. fin     : l'écran de fin s'affiche.
  * Mouvement réduit : directement à la fin, tout en vert.
  */
@@ -39,7 +39,7 @@ export function useWinSequence(active: boolean, length: number, reduced: boolean
       return () => clearTimeout(t);
     }
     if (stage === "anneau") {
-      const total = cssMs("--ring-expand", 500) + cssMs("--ring-fade", 300) - 100;
+      const total = cssMs("--ring-expand", 900) + cssMs("--ring-fade", 400) - 100;
       const t = setTimeout(() => setStage("fin"), total);
       return () => clearTimeout(t);
     }
