@@ -3,9 +3,9 @@ import { availableDirs, dirsOf, newGame, reduce } from "../../core/game";
 import { DIFFICULTIES, generate } from "../../core/grid";
 import type { Cell, Difficulty, Dir } from "../../core/types";
 import { addWin, breakStreak, formatMs } from "../../store/palmares";
-import { Board, BOARD_SIZE, boardGeometry } from "../components/Board";
+import { Board } from "../components/Board";
 import { ArrowPad, Button, Hint, Hud } from "../components/controls";
-import { WinRing } from "../components/WinRing";
+import { ringOrigin, WinRing } from "../components/WinRing";
 import { useKeyboard } from "../hooks/useKeyboard";
 import { useReducedMotion } from "../hooks/useReducedMotion";
 import { useSlide } from "../hooks/useSlide";
@@ -89,13 +89,7 @@ export function Game({ difficulty, seed, onMenu, onNewGrid }: Props) {
     move(Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? "droite" : "gauche") : dy > 0 ? "bas" : "haut");
   };
 
-  // Position écran de la case de départ, pour l'anneau de victoire.
-  let ring: { x: number; y: number; from: number } | null = null;
-  if (win.stage === "anneau" && svgRef.current) {
-    const rect = svgRef.current.getBoundingClientRect();
-    const k = rect.width / BOARD_SIZE, g = boardGeometry(state.grid), [r, c] = state.path[0];
-    ring = { x: rect.left + g.x(c) * k, y: rect.top + g.y(r) * k, from: g.pitch * 0.38 * k };
-  }
+  const ring = win.stage === "anneau" && svgRef.current ? ringOrigin(state.grid, state.path, svgRef.current.getBoundingClientRect()) : null;
 
   const left = state.cells - state.path.length;
   const tone = state.phase === "placement" ? "muted" : shownPhase === "bloqué" ? "danger" : ended ? "success" : "ink";
