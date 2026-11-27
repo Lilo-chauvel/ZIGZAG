@@ -3,7 +3,7 @@ import { centerCell, moveCursor } from "../../core/cursor";
 import { availableDirs, dirsOf, newGame, reduce } from "../../core/game";
 import { DIFFICULTIES, generate } from "../../core/grid";
 import type { Cell, Difficulty, Dir } from "../../core/types";
-import { addWin, breakStreak, formatMs } from "../../store/palmares";
+import { addMiss, addWin, breakStreak, formatMs } from "../../store/palmares";
 import { Board } from "../components/Board";
 import { ArrowPad, Button, Hint, Hud } from "../components/controls";
 import { ringOrigin, WinRing } from "../components/WinRing";
@@ -46,8 +46,9 @@ export function Game({ difficulty, seed, onMenu, onNewGrid }: Props) {
   // Enregistre la victoire une seule fois.
   const saved = useRef(false);
   useEffect(() => {
-    if (!won || assisted || saved.current || state.startedAt == null || state.endedAt == null) return;
+    if (!won || saved.current || state.startedAt == null || state.endedAt == null) return;
     saved.current = true;
+    if (assisted) return addMiss({ difficulty, seed, outcome: "solve", left: 0, date: Date.now(), start: state.path[0], dirs: dirsOf(state) });
     addWin({ difficulty, seed, moves: state.moveEnds.length, ms: state.endedAt - state.startedAt, date: Date.now(), start: state.path[0], dirs: dirsOf(state) });
   }, [won, assisted, state, difficulty, seed]);
   useEffect(() => {
@@ -55,7 +56,10 @@ export function Game({ difficulty, seed, onMenu, onNewGrid }: Props) {
   }, [won]);
 
   const leave = (then: () => void) => {
-    if (!won && state.path.length > 0) breakStreak(difficulty);
+    if (!won && state.path.length > 0) {
+      breakStreak(difficulty);
+      addMiss({ difficulty, seed, outcome: assisted ? "solve" : "abandon", left: state.cells - state.path.length, date: Date.now(), start: state.path[0], dirs: dirsOf(state) });
+    }
     then();
   };
   // Une touche pressée pendant une glissade est jouée dès qu'elle se termine.

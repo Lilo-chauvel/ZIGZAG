@@ -43,5 +43,7 @@ export const T = {
   best: "BEST",
   dashes: (n: number) => `${n} dashs`,
   replay: "Rejouer le stage",
-  empty: (d: Difficulty) => `Aucun stage ${T.difficulties[d]} clear pour l'instant. Termine un stage pour le voir ici.`,
+  missAbandon: (left: number) => `GAME OVER · reste ${left}`,
+  missSolve: "SOLVED",
+  empty: (d: Difficulty) => `Aucun stage ${T.difficulties[d]} joué pour l'instant. Termine un stage pour le voir ici.`,
 };

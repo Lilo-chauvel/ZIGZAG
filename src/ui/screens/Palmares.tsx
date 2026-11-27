@@ -1,7 +1,7 @@
 import { useMemo, useRef, useState } from "react";
 import { DIFFICULTY_ORDER, generate, replay } from "../../core/grid";
 import type { Difficulty } from "../../core/types";
-import { formatMs, list, stats, type Win } from "../../store/palmares";
+import { formatMs, list, listMisses, stats, type Miss, type Win } from "../../store/palmares";
 import { Board } from "../components/Board";
 import { Hint, Tabs } from "../components/controls";
 import { useKeyboard } from "../hooks/useKeyboard";
@@ -17,33 +17,48 @@ interface Props {
 const dateFmt = new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "short" });
 const MAX_ROWS = 50;
 
-function Row({ win, best, onReplay }: { win: Win; best: boolean; onReplay: () => void }) {
+/** Entrée de l'historique : victoire, ou stage non réussi (`miss`). */
+type Entry = { kind: "win"; win: Win } | { kind: "miss"; miss: Miss };
+
+function Row({ entry, best, onReplay }: { entry: Entry; best: boolean; onReplay: () => void }) {
+  const e = entry.kind === "win" ? entry.win : entry.miss;
   const { grid, path } = useMemo(() => {
-    const g = generate(win.difficulty, win.seed);
+    const g = generate(e.difficulty, e.seed);
     // Chemin du joueur s'il est enregistré, sinon la solution du générateur.
-    const sol = win.start && win.dirs ? { start: win.start, moves: win.dirs } : g.solution;
+    const sol = e.start && e.dirs ? { start: e.start, moves: e.dirs } : g.solution;
     return { grid: g.grid, path: replay(g.grid, sol) };
-  }, [win]);
+  }, [e]);
+  const abandon = entry.kind === "miss" && entry.miss.outcome === "abandon";
+  const meta =
+    entry.kind === "win"
+      ? `${T.dashes(entry.win.moves)} · ${formatMs(entry.win.ms)}${best ? ` · ${T.best}` : ""}`
+      : abandon
+        ? T.missAbandon(entry.miss.left)
+        : T.missSolve;
   return (
     <button type="button" className={s.row} onClick={onReplay}>
       <span className={s.thumb}>
-        <Board grid={grid} path={path} phase="gagné" hideStartRing label={`${T.stage(win.seed)} clear`} />
+        <Board grid={grid} path={path} phase={abandon ? "bloqué" : "gagné"} hideStartRing label={`${T.stage(e.seed)} · ${meta}`} />
       </span>
       <span className={s.rowText}>
-        <span className={s.rowTitle}>{T.stage(win.seed)}</span>
-        <span className={[s.rowMeta, best ? s.rowBest : ""].join(" ")}>
-          {T.dashes(win.moves)} · {formatMs(win.ms)}
-          {best ? ` · ${T.best}` : ""}
-        </span>
+        <span className={s.rowTitle}>{T.stage(e.seed)}</span>
+        <span className={[s.rowMeta, best ? s.rowBest : "", abandon ? s.rowMiss : ""].join(" ")}>{meta}</span>
       </span>
-      <span className={s.rowDate}>{dateFmt.format(win.date)}</span>
+      <span className={s.rowDate}>{dateFmt.format(e.date)}</span>
     </button>
   );
 }
 
 export function Palmares({ initial, onMenu, onReplay }: Props) {
   const [tab, setTab] = useState<Difficulty>(initial);
-  const wins = useMemo(() => list(tab), [tab]);
+  // Victoires et stages non réussis mêlés, du plus récent au plus ancien.
+  const entries = useMemo<Entry[]>(
+    () =>
+      [...list(tab).map((win) => ({ kind: "win" as const, win })), ...listMisses(tab).map((miss) => ({ kind: "miss" as const, miss }))].sort(
+        (a, b) => (b.kind === "win" ? b.win.date : b.miss.date) - (a.kind === "win" ? a.win.date : a.miss.date),
+      ),
+    [tab],
+  );
   const st = useMemo(() => stats(tab), [tab]);
   const shift = (delta: number) => {
     const i = DIFFICULTY_ORDER.indexOf(tab);
@@ -87,13 +102,14 @@ export function Palmares({ initial, onMenu, onReplay }: Props) {
         </div>
       </div>
 
-      {wins.length === 0 ? (
+      {entries.length === 0 ? (
         <p className={s.empty}>{T.empty(tab)}</p>
       ) : (
         <div className={s.list} ref={listRef}>
-          {wins.slice(0, MAX_ROWS).map((w) => (
-            <Row key={`${w.seed}-${w.date}`} win={w} best={w.ms === st.bestMs} onReplay={() => onReplay(w.difficulty, w.seed)} />
-          ))}
+          {entries.slice(0, MAX_ROWS).map((en) => {
+            const e = en.kind === "win" ? en.win : en.miss;
+            return <Row key={`${en.kind}-${e.seed}-${e.date}`} entry={en} best={en.kind === "win" && en.win.ms === st.bestMs} onReplay={() => onReplay(e.difficulty, e.seed)} />;
+          })}
         </div>
       )}
 

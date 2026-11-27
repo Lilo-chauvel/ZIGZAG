@@ -16,7 +16,7 @@ Le code et ses noms de domaine restent en français (`placer`, `glisser`, `gagn�
 | `annuler` / `recommencer` / nouvelle grille | REWIND / RETRY / NEXT STAGE |
 | résolution auto (`gen.solution` rejouée, hors Palmarès) | SOLVE → SOLVED |
 | facile · normal · difficile | EASY · NORMAL · HARD |
-| Palmarès (`store/palmares.ts`) | HIGH SCORES (réussies = CLEARS, série = COMBO) |
+| Palmarès (`store/palmares.ts`) | HIGH SCORES (réussies = CLEARS, série = COMBO ; les non réussies `Miss` sont listées mais hors stats) |
 
 ## Workflow git
 

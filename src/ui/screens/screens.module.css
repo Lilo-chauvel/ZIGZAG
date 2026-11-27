@@ -48,4 +48,5 @@
 .rowTitle { font-weight: 500; line-height: 20px; }
 .rowMeta, .rowDate { font-family: var(--font-mono); font-size: 12px; line-height: 16px; color: var(--ink-muted); font-variant-numeric: tabular-nums; }
 .rowBest { color: var(--trail); }
+.rowMiss { color: var(--danger); }
 .empty { padding: var(--space-4) var(--space-3); color: var(--ink-muted); border: 1px dashed var(--hairline); border-radius: var(--radius-sm); }

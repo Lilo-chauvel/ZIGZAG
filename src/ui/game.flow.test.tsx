@@ -4,7 +4,7 @@ import { centerCell, moveCursor } from "../core/cursor";
 import { generate } from "../core/grid";
 import { boardGeometry } from "./components/Board";
 import { isOpen } from "../core/types";
-import { list } from "../store/palmares";
+import { list, listMisses } from "../store/palmares";
 import { Game } from "./screens/Game";
 import { Palmares } from "./screens/Palmares";
 import { Menu } from "./screens/Menu";
@@ -63,7 +63,7 @@ it("joue une grille jusqu'à la victoire et la retrouve dans le Palmarès", () =
   expect(screen.getByText(T.stage(42))).toBeTruthy();
 });
 
-it("SOLVE rejoue la solution sans l'enregistrer au Palmarès", () => {
+it("SOLVE rejoue la solution et la classe comme non réussie", () => {
   const seed = 42;
   const { grid, solution } = generate("normal", seed);
   const { container } = render(<Game difficulty="normal" seed={seed} onMenu={() => {}} onNewGrid={() => {}} />);
@@ -76,6 +76,28 @@ it("SOLVE rejoue la solution sans l'enregistrer au Palmarès", () => {
   expect(screen.getByText(T.solved)).toBeTruthy();
   expect(screen.getByText(new RegExp(`en ${solution.moves.length} dashs`))).toBeTruthy();
   expect(list("normal")).toHaveLength(0);
+  expect(listMisses("normal")).toMatchObject([{ seed, outcome: "solve" }]);
+});
+
+it("un stage abandonné apparaît dans l'historique", () => {
+  const seed = 42;
+  const { grid, solution, cells } = generate("normal", seed);
+  const onMenu = vi.fn();
+  const { container, unmount } = render(<Game difficulty="normal" seed={seed} onMenu={onMenu} onNewGrid={() => {}} />);
+  clickCell(container, grid, solution.start);
+  fireEvent.keyDown(window, { key: KEYS[solution.moves[0]] });
+  flush();
+  fireEvent.keyDown(window, { key: "Escape" });
+  expect(onMenu).toHaveBeenCalled();
+  unmount();
+
+  const [miss] = listMisses("normal");
+  expect(miss).toMatchObject({ seed, outcome: "abandon", dirs: [solution.moves[0]] });
+  expect(miss.left).toBeGreaterThan(0);
+  expect(miss.left).toBeLessThan(cells);
+  render(<Palmares initial="normal" onMenu={() => {}} onReplay={() => {}} />);
+  expect(screen.getByText(T.stage(seed))).toBeTruthy();
+  expect(screen.getByText(T.missAbandon(miss.left))).toBeTruthy();
 });
 
 it("se bloque, annule, et propose les bonnes actions", () => {

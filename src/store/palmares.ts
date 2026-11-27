@@ -12,6 +12,18 @@ export interface Win {
   dirs?: Dir[];
 }
 
+/** Stage non réussi : abandonné en cours de partie, ou résolu par SOLVE. */
+export interface Miss {
+  difficulty: Difficulty;
+  seed: number;
+  outcome: "abandon" | "solve";
+  /** Cases restant à remplir au moment de l'abandon (0 si résolu). */
+  left: number;
+  date: number;
+  start?: Cell;
+  dirs?: Dir[];
+}
+
 export interface Stats {
   wins: number;
   bestMs: number | null;
@@ -21,6 +33,7 @@ export interface Stats {
 
 const KEY = "snake-like/palmares/v1";
 const STREAK_KEY = "snake-like/serie/v1";
+const MISS_KEY = "snake-like/echecs/v1";
 
 // Le stockage peut être indisponible (navigation privée, données bloquées) :
 // le jeu marche quand même, le Palmarès reste simplement vide.
@@ -59,6 +72,17 @@ export function breakStreak(difficulty: Difficulty) {
 
 export function list(difficulty: Difficulty): Win[] {
   return allWins().filter((w) => w.difficulty === difficulty);
+}
+
+/** Les stages non réussis n'entrent pas dans les stats, seulement dans l'historique. */
+export function addMiss(miss: Miss) {
+  const v = read<unknown>(MISS_KEY, []);
+  write(MISS_KEY, [miss, ...(Array.isArray(v) ? v : [])].slice(0, 500));
+}
+
+export function listMisses(difficulty: Difficulty): Miss[] {
+  const v = read<unknown>(MISS_KEY, []);
+  return Array.isArray(v) ? (v as Miss[]).filter((m) => m.difficulty === difficulty) : [];
 }
 
 export function stats(difficulty: Difficulty): Stats {

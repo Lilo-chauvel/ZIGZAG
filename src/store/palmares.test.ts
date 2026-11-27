@@ -1,4 +1,4 @@
-import { addWin, breakStreak, formatMs, list, stats } from "./palmares";
+import { addMiss, addWin, breakStreak, formatMs, list, listMisses, stats } from "./palmares";
 
 beforeEach(() => localStorage.clear());
 
@@ -15,6 +15,13 @@ it("un abandon casse la série sans effacer les victoires", () => {
   addWin({ difficulty: "facile", seed: 1, moves: 5, ms: 1000, date: 1 });
   breakStreak("facile");
   expect(stats("facile")).toMatchObject({ wins: 1, streak: 0 });
+});
+
+it("garde les stages non réussis à part, hors stats", () => {
+  addMiss({ difficulty: "normal", seed: 4, outcome: "abandon", left: 6, date: 1 });
+  addMiss({ difficulty: "facile", seed: 5, outcome: "solve", left: 0, date: 2 });
+  expect(listMisses("normal").map((m) => m.seed)).toEqual([4]);
+  expect(stats("normal")).toMatchObject({ wins: 0, bestMs: null });
 });
 
 it("survit à un stockage indisponible", () => {
