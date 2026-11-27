@@ -12,13 +12,20 @@ export function Key({ children, dir, active, disabled }: { children?: ReactNode;
   );
 }
 
-/** Une touche et ce qu'elle fait, pour les aides en bas d'écran. */
-export function Hint({ k, children }: { k: ReactNode; children: ReactNode }) {
-  return (
-    <span className={s.hint}>
+/** Une touche et ce qu'elle fait, pour les aides en bas d'écran. Cliquable si `onClick` (mobile). */
+export function Hint({ k, children, onClick }: { k: ReactNode; children: ReactNode; onClick?: () => void }) {
+  const content = (
+    <>
       <Key>{k}</Key>
       {children}
-    </span>
+    </>
+  );
+  return onClick ? (
+    <button type="button" className={[s.hint, s.hintButton].join(" ")} onClick={onClick}>
+      {content}
+    </button>
+  ) : (
+    <span className={s.hint}>{content}</span>
   );
 }
 

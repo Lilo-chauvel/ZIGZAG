@@ -14,6 +14,7 @@ Le code et ses noms de domaine restent en français (`placer`, `glisser`, `gagn�
 | départ / coup | START / dash |
 | `bloqué` / `gagné` | GAME OVER / CLEAR! (PERFECT! si `rewinds === 0`) |
 | `annuler` / `recommencer` / nouvelle grille | REWIND / RETRY / NEXT STAGE |
+| résolution auto (`gen.solution` rejouée, hors Palmarès) | SOLVE → SOLVED |
 | facile · normal · difficile | EASY · NORMAL · HARD |
 | Palmarès (`store/palmares.ts`) | HIGH SCORES (réussies = CLEARS, série = COMBO) |
 

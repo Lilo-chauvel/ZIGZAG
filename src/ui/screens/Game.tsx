@@ -8,7 +8,7 @@ import { Board } from "../components/Board";
 import { ArrowPad, Button, Hint, Hud } from "../components/controls";
 import { ringOrigin, WinRing } from "../components/WinRing";
 import { useKeyboard } from "../hooks/useKeyboard";
-import { useReducedMotion } from "../hooks/useReducedMotion";
+import { cssMs, useReducedMotion } from "../hooks/useReducedMotion";
 import { useSlide } from "../hooks/useSlide";
 import { useWinSequence } from "../hooks/useWinSequence";
 import { T } from "../texts";
@@ -33,6 +33,10 @@ export function Game({ difficulty, seed, onMenu, onNewGrid }: Props) {
   const svgRef = useRef<SVGSVGElement>(null);
   const dirs = dirsOf(state);
   const conf = DIFFICULTIES[difficulty];
+  // SOLVE : rejoue la solution connue de generate() (validée par solve()).
+  // `solving` = dashs restant à jouer ; une partie assistée n'entre pas au Palmarès.
+  const [solving, setSolving] = useState<Dir[] | null>(null);
+  const [assisted, setAssisted] = useState(false);
 
   // Tant que la glissade s'affiche, on montre l'état « en jeu ».
   const shownPhase = sliding && state.phase !== "placement" ? "jeu" : state.phase;
@@ -42,10 +46,10 @@ export function Game({ difficulty, seed, onMenu, onNewGrid }: Props) {
   // Enregistre la victoire une seule fois.
   const saved = useRef(false);
   useEffect(() => {
-    if (!won || saved.current || state.startedAt == null || state.endedAt == null) return;
+    if (!won || assisted || saved.current || state.startedAt == null || state.endedAt == null) return;
     saved.current = true;
     addWin({ difficulty, seed, moves: state.moveEnds.length, ms: state.endedAt - state.startedAt, date: Date.now(), start: state.path[0], dirs: dirsOf(state) });
-  }, [won, state, difficulty, seed]);
+  }, [won, assisted, state, difficulty, seed]);
   useEffect(() => {
     if (!won) saved.current = false;
   }, [won]);
@@ -57,6 +61,7 @@ export function Game({ difficulty, seed, onMenu, onNewGrid }: Props) {
   // Une touche pressée pendant une glissade est jouée dès qu'elle se termine.
   const queued = useRef<Dir | null>(null);
   const move = (dir: Dir) => {
+    if (solving) return;
     if (state.phase === "placement") return setCursor((c) => moveCursor(state.grid, c, dir));
     if (state.phase !== "jeu") return;
     if (sliding) queued.current = dir;
@@ -68,8 +73,27 @@ export function Game({ difficulty, seed, onMenu, onNewGrid }: Props) {
     queued.current = null;
     if (state.phase === "jeu") dispatch({ type: "glisser", dir, now: Date.now() });
   }, [sliding, state.phase]);
-  const undo = () => !sliding && dispatch({ type: "annuler" });
-  const restart = () => (!won || ended) && dispatch({ type: "recommencer" });
+  const undo = () => !sliding && !solving && dispatch({ type: "annuler" });
+  const restart = () => !solving && (!won || ended) && dispatch({ type: "recommencer" });
+  const solveIt = () => {
+    if (solving || won) return;
+    breakStreak(difficulty);
+    setAssisted(true);
+    queued.current = null;
+    dispatch({ type: "recommencer" });
+    dispatch({ type: "placer", cell: gen.solution.start, now: Date.now() });
+    setSolving(gen.solution.moves);
+  };
+  // Joue le dash suivant de la solution une fois la glissade précédente affichée.
+  useEffect(() => {
+    if (!solving || sliding) return;
+    if (state.phase !== "jeu" || solving.length === 0) return setSolving(null);
+    const t = setTimeout(() => {
+      dispatch({ type: "glisser", dir: solving[0], now: Date.now() });
+      setSolving(solving.slice(1));
+    }, reduced ? 0 : cssMs("--step-duration", 55) * 3);
+    return () => clearTimeout(t);
+  }, [solving, sliding, state.phase, reduced]);
   const place = (cell: Cell) => dispatch({ type: "placer", cell, now: Date.now() });
 
   useKeyboard({
@@ -79,6 +103,7 @@ export function Game({ difficulty, seed, onMenu, onNewGrid }: Props) {
     space: () => (state.phase === "placement" ? place(cursor) : (ended || state.phase === "bloqué") && leave(onNewGrid)),
     enter: () => (state.phase === "placement" ? place(cursor) : ended && onNewGrid()),
     escape: () => leave(onMenu),
+    h: solveIt,
   });
 
   // Glisser du doigt sur le plateau (mobile).
@@ -128,19 +153,27 @@ export function Game({ difficulty, seed, onMenu, onNewGrid }: Props) {
             <div className={s.hints}>
               <Hint k="↑↓←→">{T.moveCursor}</Hint>
               <Hint k="Espace">{T.start}</Hint>
+              <Hint k="H" onClick={solveIt}>
+                {T.solve}
+              </Hint>
             </div>
           </>
         )}
 
         {shownPhase === "jeu" && (
           <>
-            <p className={s.body}>{T.playing}</p>
+            <p className={s.body}>{solving ? T.solving : T.playing}</p>
             <div className={s.controls}>
-              <ArrowPad available={sliding ? [] : availableDirs(state)} last={dirs.at(-1) ?? null} />
-              <div className={s.stack}>
-                <Hint k="⌫">{T.rewind}</Hint>
-                <Hint k="R">{T.retry}</Hint>
-              </div>
+              <ArrowPad available={sliding || solving ? [] : availableDirs(state)} last={dirs.at(-1) ?? null} />
+              {!solving && (
+                <div className={s.stack}>
+                  <Hint k="⌫">{T.rewind}</Hint>
+                  <Hint k="R">{T.retry}</Hint>
+                  <Hint k="H" onClick={solveIt}>
+                    {T.solve}
+                  </Hint>
+                </div>
+              )}
             </div>
           </>
         )}
@@ -156,6 +189,9 @@ export function Game({ difficulty, seed, onMenu, onNewGrid }: Props) {
               <Button variant="secondary" shortcut="R" onClick={restart}>
                 {T.retry}
               </Button>
+              <Button variant="secondary" shortcut="H" onClick={solveIt}>
+                {T.solve}
+              </Button>
               <Button variant="secondary" shortcut="Espace" onClick={() => leave(onNewGrid)}>
                 {T.nextStage}
               </Button>
@@ -165,7 +201,7 @@ export function Game({ difficulty, seed, onMenu, onNewGrid }: Props) {
 
         {ended && state.startedAt != null && state.endedAt != null && (
           <>
-            <h2 className={s.headline}>{state.rewinds === 0 ? T.perfect : T.clear}</h2>
+            <h2 className={s.headline}>{assisted ? T.solved : state.rewinds === 0 ? T.perfect : T.clear}</h2>
             <p className={s.body}>{T.clearBody(state.cells, state.moveEnds.length, formatMs(state.endedAt - state.startedAt))}</p>
             <div className={s.actions}>
               <Button shortcut="Espace" onClick={onNewGrid} autoFocus>

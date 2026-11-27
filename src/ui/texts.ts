@@ -27,11 +27,14 @@ export const T = {
   rewind: "REWIND",
   retry: "RETRY",
   nextStage: "NEXT STAGE",
+  solve: "SOLVE",
+  solving: "Résolution automatique…",
 
   gameOver: "GAME OVER",
   gameOverBody: (left: number) => `Plus aucun dash possible. Il restait ${left} case${left > 1 ? "s" : ""}.`,
   clear: "CLEAR!",
   perfect: "PERFECT!",
+  solved: "SOLVED",
   clearBody: (cells: number, dashes: number, time: string) => `${cells} cases en ${dashes} dashs · ${time}`,
 
   statClears: "CLEARS",

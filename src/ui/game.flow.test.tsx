@@ -63,6 +63,21 @@ it("joue une grille jusqu'à la victoire et la retrouve dans le Palmarès", () =
   expect(screen.getByText(T.stage(42))).toBeTruthy();
 });
 
+it("SOLVE rejoue la solution sans l'enregistrer au Palmarès", () => {
+  const seed = 42;
+  const { grid, solution } = generate("normal", seed);
+  const { container } = render(<Game difficulty="normal" seed={seed} onMenu={() => {}} onNewGrid={() => {}} />);
+  // Part d'une partie déjà entamée ailleurs que sur la solution.
+  const other = grid.flatMap((row, r) => [...row].map((_, c) => [r, c] as const)).find(([r, c]) => isOpen(grid, r, c) && (r !== solution.start[0] || c !== solution.start[1]))!;
+  clickCell(container, grid, other);
+  fireEvent.click(screen.getByRole("button", { name: new RegExp(T.solve) }));
+  flush();
+  flush();
+  expect(screen.getByText(T.solved)).toBeTruthy();
+  expect(screen.getByText(new RegExp(`en ${solution.moves.length} dashs`))).toBeTruthy();
+  expect(list("normal")).toHaveLength(0);
+});
+
 it("se bloque, annule, et propose les bonnes actions", () => {
   const seed = 7;
   const { grid, solution } = generate("facile", seed);

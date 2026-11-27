@@ -10,6 +10,8 @@
 .keyActive { color: var(--ink-on-trail); background: var(--trail); border-color: var(--trail); border-bottom-width: 1px; transform: translateY(2px); }
 .keyDisabled { color: var(--ink-muted); opacity: 0.5; }
 .hint { display: inline-flex; align-items: center; gap: var(--space-2); font-size: 13px; color: var(--ink-muted); }
+.hintButton { padding: 0; font-family: inherit; background: none; border: 0; cursor: pointer; }
+.hintButton:hover { color: var(--ink); }
 .pad { display: grid; gap: var(--space-2); justify-items: center; }
 .padRow { display: flex; gap: var(--space-2); }
 
