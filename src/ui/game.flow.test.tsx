@@ -1,6 +1,8 @@
 import { act, fireEvent, render, screen } from "@testing-library/react";
 import { newGame, reduce } from "../core/game";
+import { centerCell, moveCursor } from "../core/cursor";
 import { generate } from "../core/grid";
+import { boardGeometry } from "./components/Board";
 import { isOpen } from "../core/types";
 import { list } from "../store/palmares";
 import { Game } from "./screens/Game";
@@ -78,6 +80,20 @@ it("se bloque, annule, et propose les bonnes actions", () => {
     expect(screen.queryByText(T.gameOver)).toBeNull();
     expect(screen.getByText(T.playing)).toBeTruthy();
   }
+});
+
+it("le START se choisit entièrement au clavier", () => {
+  const seed = 42;
+  const { grid } = generate("normal", seed);
+  const { container } = render(<Game difficulty="normal" seed={seed} onMenu={() => {}} onNewGrid={() => {}} />);
+  const target = moveCursor(grid, centerCell(grid), "droite");
+  fireEvent.keyDown(window, { key: "ArrowRight" });
+  fireEvent.keyDown(window, { key: " " });
+  expect(screen.getByText(T.playing)).toBeTruthy();
+  // L'anneau du START est posé sur la case visée.
+  const g = boardGeometry(grid);
+  const ring = [...container.querySelectorAll("circle")].at(-1)!;
+  expect([Number(ring.getAttribute("cx")), Number(ring.getAttribute("cy"))]).toEqual([g.x(target[1]), g.y(target[0])]);
 });
 
 it("le menu change de difficulté au clavier et lance la partie", () => {

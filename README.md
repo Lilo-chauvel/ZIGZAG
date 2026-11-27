@@ -15,13 +15,13 @@ npm run build    # site statique dans dist/
 
 | Touche | Action |
 |---|---|
-| Souris | placer le départ |
-| Flèches, ZQSD, WASD (ou glisser du doigt) | glisser |
+| Flèches, ZQSD, WASD (ou souris) | choisir le START, puis Espace / Entrée |
+| Flèches, ZQSD, WASD (ou glisser du doigt) | dash |
 | ⌫ | REWIND (annule le dernier dash) |
 | R | RETRY (recommence le stage) |
 | Espace | NEXT STAGE (fin de partie) · START (menu) |
 | Échap | menu |
-| H | HIGH SCORES (depuis le menu) |
+| H | HIGH SCORES (depuis le menu) ; ↑↓ + Entrée pour rejouer un stage |
 
 ## Organisation
 

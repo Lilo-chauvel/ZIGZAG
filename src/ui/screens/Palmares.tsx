@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { DIFFICULTY_ORDER, generate, replay } from "../../core/grid";
 import type { Difficulty } from "../../core/types";
 import { formatMs, list, stats, type Win } from "../../store/palmares";
@@ -50,8 +50,16 @@ export function Palmares({ initial, onMenu, onReplay }: Props) {
     setTab(DIFFICULTY_ORDER[(i + delta + DIFFICULTY_ORDER.length) % DIFFICULTY_ORDER.length]);
   };
 
+  // ↑↓ parcourent les stages (Entrée rejoue celui qui a le focus).
+  const listRef = useRef<HTMLDivElement>(null);
+  const focusRow = (delta: number) => {
+    const rows = [...(listRef.current?.querySelectorAll("button") ?? [])];
+    if (!rows.length) return;
+    const i = rows.indexOf(document.activeElement as HTMLButtonElement);
+    rows[i < 0 ? 0 : Math.min(rows.length - 1, Math.max(0, i + delta))].focus();
+  };
   useKeyboard({
-    dir: (d) => (d === "gauche" ? shift(-1) : d === "droite" ? shift(1) : undefined),
+    dir: (d) => (d === "gauche" ? shift(-1) : d === "droite" ? shift(1) : focusRow(d === "haut" ? -1 : 1)),
     escape: onMenu,
   });
 
@@ -82,7 +90,7 @@ export function Palmares({ initial, onMenu, onReplay }: Props) {
       {wins.length === 0 ? (
         <p className={s.empty}>{T.empty(tab)}</p>
       ) : (
-        <div className={s.list}>
+        <div className={s.list} ref={listRef}>
           {wins.slice(0, MAX_ROWS).map((w) => (
             <Row key={`${w.seed}-${w.date}`} win={w} best={w.ms === st.bestMs} onReplay={() => onReplay(w.difficulty, w.seed)} />
           ))}
@@ -91,6 +99,7 @@ export function Palmares({ initial, onMenu, onReplay }: Props) {
 
       <div className={s.hints}>
         <Hint k="←→">{T.difficulty}</Hint>
+        <Hint k="↑↓">{T.moveCursor}</Hint>
         <Hint k="Entrée">{T.replay}</Hint>
       </div>
     </main>
