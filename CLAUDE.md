@@ -19,10 +19,8 @@ Le code et ses noms de domaine restent en français (`placer`, `glisser`, `gagn�
 
 ## Workflow git
 
-- `main` est la branche stable. Ne jamais commiter directement dessus.
-- Chaque feature ou correctif se fait sur sa propre branche créée depuis `main` (ex. `feature/defi-du-jour`, `fix/glissade-mobile`).
-- L'utilisateur merge lui-même les branches sur `main` : ne pas merger, ne pas pousser sur `main`.
-- Avant de proposer une branche au merge : `npm test` et `npm run build` doivent passer.
+- Commiter directement sur `main`. Une branche seulement si l'utilisateur la demande pour une nouvelle fonctionnalité.
+- Avant chaque commit : `npm test` et `npm run build` doivent passer.
 
 ## Commandes
 
