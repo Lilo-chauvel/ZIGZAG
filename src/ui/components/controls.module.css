@@ -1,0 +1,56 @@
+/* Key */
+.key {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 32px; height: 32px; padding: 0 var(--space-2);
+  font-family: var(--font-mono); font-size: 12px; font-weight: 500; letter-spacing: 0.6px;
+  color: var(--ink); background: var(--surface-raised);
+  border: 1px solid var(--hairline); border-bottom-width: 3px; border-radius: var(--radius-sm);
+  transition: transform 80ms, background 80ms;
+}
+.keyActive { color: var(--ink-on-trail); background: var(--trail); border-color: var(--trail); border-bottom-width: 1px; transform: translateY(2px); }
+.keyDisabled { color: var(--ink-muted); opacity: 0.5; }
+.hint { display: inline-flex; align-items: center; gap: var(--space-2); font-size: 13px; color: var(--ink-muted); }
+.pad { display: grid; gap: var(--space-2); justify-items: center; }
+.padRow { display: flex; gap: var(--space-2); }
+
+/* Button */
+.button {
+  display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2);
+  height: 40px; padding: 0 var(--space-3);
+  font-size: 13px; font-weight: 500; letter-spacing: 0.2px;
+  border-radius: var(--radius-sm); border: 1px solid transparent; cursor: pointer;
+}
+.primary { color: var(--ink-on-trail); background: var(--trail); }
+.primary:hover { background: var(--head); }
+.secondary { color: var(--ink); background: var(--surface-raised); border-color: var(--hairline); }
+.secondary:hover { border-color: var(--ink-muted); }
+.wide { width: 100%; }
+.shortcut { font-family: var(--font-mono); font-size: 11px; opacity: 0.7; }
+
+/* DifficultyOption */
+.option {
+  display: flex; align-items: center; gap: 12px; width: 100%;
+  padding: 14px var(--space-3); text-align: left; cursor: pointer;
+  color: var(--ink); background: transparent;
+  border: 1px solid var(--hairline); border-radius: var(--radius-sm);
+}
+.option:hover { border-color: var(--ink-muted); }
+.optionSelected, .optionSelected:hover { background: var(--surface-raised); border-color: var(--trail); box-shadow: inset 0 0 0 0.5px var(--trail); }
+.optionText { display: grid; gap: var(--space-1); flex: 1; min-width: 0; }
+.optionName { font-weight: 500; line-height: 20px; }
+.optionDetail, .optionWins { font-family: var(--font-mono); font-size: 12px; line-height: 16px; color: var(--ink-muted); }
+.optionSelected .optionWins { color: var(--trail); }
+
+/* Tabs */
+.tabs { display: flex; gap: var(--space-1); padding: var(--space-1); border: 1px solid var(--hairline); border-radius: var(--radius-sm); }
+.tab { flex: 1; padding: var(--space-2) 12px; font-size: 13px; font-weight: 500; color: var(--ink-muted); background: none; border: 0; border-radius: 4px; cursor: pointer; }
+.tabSelected { color: var(--ink); background: var(--surface-raised); }
+
+/* Hud */
+.hud { display: flex; justify-content: space-between; align-items: flex-end; }
+.caption { font-family: var(--font-mono); font-size: 11px; line-height: 14px; letter-spacing: 0.8px; color: var(--ink-muted); text-transform: uppercase; }
+.counter { font-family: var(--font-mono); font-size: 20px; line-height: 24px; font-weight: 500; font-variant-numeric: tabular-nums; }
+.ink { color: var(--ink); }
+.muted { color: var(--ink-muted); }
+.danger { color: var(--danger); }
+.success { color: var(--success); }

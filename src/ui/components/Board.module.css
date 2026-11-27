@@ -1,0 +1,21 @@
+.board {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1;
+  touch-action: manipulation;
+}
+.bg { fill: var(--board); }
+.links { stroke: var(--node-idle); }
+.started .links { stroke: var(--link-idle); }
+.node { fill: var(--node-idle); }
+.trail { stroke: var(--trail); }
+.trailGreen { stroke: var(--success); }
+.filled { fill: var(--trail); }
+.green { fill: var(--success); }
+.start { fill: var(--success); }
+.head { fill: var(--head); }
+.stuck { fill: var(--danger); }
+.ring { fill: none; stroke: var(--success); }
+.ghost { fill: none; stroke: var(--ghost); }
+.hit { fill: transparent; cursor: pointer; }
