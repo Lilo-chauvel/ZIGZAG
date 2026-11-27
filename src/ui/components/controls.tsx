@@ -69,7 +69,7 @@ export function DifficultyOption({
 }: {
   name: string;
   detail: string;
-  wins: number;
+  wins: string;
   selected: boolean;
   onSelect: () => void;
 }) {
@@ -79,9 +79,7 @@ export function DifficultyOption({
         <span className={s.optionName}>{name}</span>
         <span className={s.optionDetail}>{detail}</span>
       </span>
-      <span className={s.optionWins}>
-        {wins} réussie{wins > 1 ? "s" : ""}
-      </span>
+      <span className={s.optionWins}>{wins}</span>
     </button>
   );
 }

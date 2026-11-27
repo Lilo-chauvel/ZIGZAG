@@ -4,7 +4,18 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Projet
 
-Snake Like : puzzle web où le serpent glisse jusqu'au premier obstacle (bord, trou, sa propre trace) ; on gagne en remplissant toutes les cases libres. Vite + TypeScript + React 18, plateau en SVG, aucun backend. Code, textes d'interface et noms de domaine (`placer`, `glisser`, `gagné`, `bloqué`, directions `haut`/`bas`/`gauche`/`droite`) sont en français : garder cette convention.
+ZIGZAP (dossier/paquet encore nommés `snake_like`) : puzzle arcade où l'on dash jusqu'au premier obstacle (bord, trou, sa propre trace) ; on gagne en remplissant toutes les cases libres. Vite + TypeScript + React 18, plateau en SVG, aucun backend.
+
+Le code et ses noms de domaine restent en français (`placer`, `glisser`, `gagné`, `bloqué`, `haut`/`bas`/`gauche`/`droite`). Tout texte affiché vient de `src/ui/texts.ts` (registre arcade : cris en capitales, consignes en français) ; ne pas écrire de texte en dur dans les écrans.
+
+| Code | Affiché |
+|---|---|
+| grille (graine) | STAGE #n |
+| départ / coup | START / dash |
+| `bloqué` / `gagné` | GAME OVER / CLEAR! (PERFECT! si `rewinds === 0`) |
+| `annuler` / `recommencer` / nouvelle grille | REWIND / RETRY / NEXT STAGE |
+| facile · normal · difficile | EASY · NORMAL · HARD |
+| Palmarès (`store/palmares.ts`) | HIGH SCORES (réussies = CLEARS, série = COMBO) |
 
 ## Workflow git
 

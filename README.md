@@ -1,6 +1,6 @@
-# Snake Like
+# ZIGZAP
 
-Un puzzle en une seule ligne. Place ton départ sur une case, puis choisis une direction : le serpent glisse tout droit jusqu'au premier obstacle (bord, trou ou sa propre trace). Remplis toutes les cases pour gagner.
+Puzzle arcade : choisis ton START, puis dash tout droit jusqu'au premier obstacle (bord, bloc ou ta propre trace). Remplis toute la grille pour un CLEAR, sans REWIND pour un PERFECT.
 
 ## Lancer
 
@@ -17,11 +17,11 @@ npm run build    # site statique dans dist/
 |---|---|
 | Souris | placer le départ |
 | Flèches, ZQSD, WASD (ou glisser du doigt) | glisser |
-| ⌫ | annuler le dernier coup |
-| R | recommencer la grille |
-| Espace | nouvelle grille (fin de partie) · jouer (menu) |
+| ⌫ | REWIND (annule le dernier dash) |
+| R | RETRY (recommence le stage) |
+| Espace | NEXT STAGE (fin de partie) · START (menu) |
 | Échap | menu |
-| P | Palmarès (depuis le menu) |
+| H | HIGH SCORES (depuis le menu) |
 
 ## Organisation
 
@@ -38,4 +38,4 @@ npm run build    # site statique dans dist/
 1. Le générateur trace d'abord une solution par glissades aléatoires, et pose un trou juste après chaque arrêt. Les cases jamais traversées deviennent des trous.
 2. Un solveur indépendant (recherche exhaustive avec retour arrière) vérifie qu'une solution existe et compte les impasses, qui mesurent la difficulté.
 
-Une graine donne toujours la même grille, dans tous les navigateurs : c'est le numéro affiché (« Grille #4821 ») qui permet de la rejouer depuis le Palmarès.
+Une graine donne toujours la même grille, dans tous les navigateurs : c'est le numéro affiché (« STAGE #4821 ») qui permet de la rejouer depuis le Palmarès.

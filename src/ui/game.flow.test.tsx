@@ -6,6 +6,7 @@ import { list } from "../store/palmares";
 import { Game } from "./screens/Game";
 import { Palmares } from "./screens/Palmares";
 import { Menu } from "./screens/Menu";
+import { T } from "./texts";
 
 const KEYS = { haut: "ArrowUp", bas: "ArrowDown", gauche: "ArrowLeft", droite: "ArrowRight" } as const;
 // Chaque étape d'animation planifie la suivante depuis un effet React : on avance pas à pas.
@@ -36,17 +37,17 @@ it("joue une grille jusqu'à la victoire et la retrouve dans le Palmarès", () =
   const onNewGrid = vi.fn();
   const { container, unmount } = render(<Game difficulty="normal" seed={seed} onMenu={() => {}} onNewGrid={onNewGrid} />);
 
-  expect(screen.getByText("Clique sur une case pour placer le départ.")).toBeTruthy();
+  expect(screen.getByText(T.placement)).toBeTruthy();
   clickCell(container, grid, solution.start);
-  expect(screen.getByText(/Choisis une direction/)).toBeTruthy();
+  expect(screen.getByText(T.playing)).toBeTruthy();
 
   for (const d of solution.moves) {
     fireEvent.keyDown(window, { key: KEYS[d] });
     flush(); // laisse la glissade s'afficher
   }
   flush(); // repassage vert + anneau
-  expect(screen.getByText("Grille remplie")).toBeTruthy();
-  expect(screen.getByText(new RegExp(`${cells} cases en ${solution.moves.length} coups`))).toBeTruthy();
+  expect(screen.getByText(T.perfect)).toBeTruthy(); // aucun REWIND utilisé
+  expect(screen.getByText(new RegExp(`${cells} cases en ${solution.moves.length} dashs`))).toBeTruthy();
 
   const wins = list("normal");
   expect(wins).toHaveLength(1);
@@ -57,7 +58,7 @@ it("joue une grille jusqu'à la victoire et la retrouve dans le Palmarès", () =
   unmount();
 
   render(<Palmares initial="normal" onMenu={() => {}} onReplay={() => {}} />);
-  expect(screen.getByText("Grille #042")).toBeTruthy();
+  expect(screen.getByText(T.stage(42))).toBeTruthy();
 });
 
 it("se bloque, annule, et propose les bonnes actions", () => {
@@ -67,15 +68,15 @@ it("se bloque, annule, et propose les bonnes actions", () => {
   clickCell(container, grid, solution.start);
   // Joue des coups au hasard jusqu'à être bloqué ou gagner.
   const order = ["haut", "droite", "bas", "gauche"] as const;
-  for (let i = 0; i < 40 && !screen.queryByText("Bloqué") && !screen.queryByText("Grille remplie"); i++) {
+  for (let i = 0; i < 40 && !screen.queryByText(T.gameOver) && !screen.queryByText(T.perfect); i++) {
     fireEvent.keyDown(window, { key: KEYS[order[i % 4]] });
     flush();
   }
-  if (screen.queryByText("Bloqué")) {
-    fireEvent.click(screen.getByText("Annuler le coup"));
+  if (screen.queryByText(T.gameOver)) {
+    fireEvent.click(screen.getByRole("button", { name: new RegExp(T.rewind) }));
     flush();
-    expect(screen.queryByText("Bloqué")).toBeNull();
-    expect(screen.getByText(/Choisis une direction/)).toBeTruthy();
+    expect(screen.queryByText(T.gameOver)).toBeNull();
+    expect(screen.getByText(T.playing)).toBeTruthy();
   }
 });
 

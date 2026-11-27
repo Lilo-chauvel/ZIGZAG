@@ -16,6 +16,8 @@ export interface GameState {
   phase: Phase;
   startedAt: number | null;
   endedAt: number | null;
+  /** Nombre d'Annuler utilisés : 0 à la fin = PERFECT. */
+  rewinds: number;
 }
 
 export type Action =
@@ -25,7 +27,7 @@ export type Action =
   | { type: "recommencer" };
 
 export function newGame(grid: Grid, difficulty: Difficulty, seed: number): GameState {
-  return { grid, difficulty, seed, cells: countOpen(grid), path: [], moveEnds: [], phase: "placement", startedAt: null, endedAt: null };
+  return { grid, difficulty, seed, cells: countOpen(grid), path: [], moveEnds: [], phase: "placement", startedAt: null, endedAt: null, rewinds: 0 };
 }
 
 const freeTest = (s: GameState) => {
@@ -75,10 +77,10 @@ export function reduce(s: GameState, a: Action): GameState {
     }
     case "annuler": {
       if (s.phase === "placement" || s.phase === "gagné") return s;
-      if (s.moveEnds.length === 0) return { ...s, path: [], phase: "placement", startedAt: null, endedAt: null };
+      if (s.moveEnds.length === 0) return { ...s, path: [], phase: "placement", startedAt: null, endedAt: null, rewinds: s.rewinds + 1 };
       const moveEnds = s.moveEnds.slice(0, -1);
       const keep = moveEnds.length ? moveEnds[moveEnds.length - 1] : 1;
-      return { ...s, path: s.path.slice(0, keep), moveEnds, phase: "jeu", endedAt: null };
+      return { ...s, path: s.path.slice(0, keep), moveEnds, phase: "jeu", endedAt: null, rewinds: s.rewinds + 1 };
     }
     case "recommencer":
       return newGame(s.grid, s.difficulty, s.seed);

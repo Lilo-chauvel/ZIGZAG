@@ -10,6 +10,7 @@ import { useKeyboard } from "../hooks/useKeyboard";
 import { useReducedMotion } from "../hooks/useReducedMotion";
 import { useSlide } from "../hooks/useSlide";
 import { useWinSequence } from "../hooks/useWinSequence";
+import { T } from "../texts";
 import s from "./screens.module.css";
 
 interface Props {
@@ -102,10 +103,10 @@ export function Game({ difficulty, seed, onMenu, onNewGrid }: Props) {
   return (
     <main className={s.screen}>
       <div className={s.topBar}>
-        <Hint k="Échap">Menu</Hint>
-        <span className={s.seed}>GRILLE #{String(seed).padStart(3, "0")}</span>
+        <Hint k="Échap">{T.menu}</Hint>
+        <span className={s.seed}>{T.stage(seed)}</span>
       </div>
-      <Hud caption={`${conf.label} · ${conf.size} × ${conf.size}`} value={`${visible} / ${state.cells}`} tone={tone} />
+      <Hud caption={`${T.difficulties[difficulty]} · ${conf.size} × ${conf.size}`} value={`${visible} / ${state.cells}`} tone={tone} />
 
       <div className={s.boardWrap} onPointerDown={onDown} onPointerUp={onUp}>
         <Board
@@ -123,16 +124,16 @@ export function Game({ difficulty, seed, onMenu, onNewGrid }: Props) {
       {ring && <WinRing {...ring} />}
 
       <section className={s.foot} aria-live="polite">
-        {state.phase === "placement" && <p className={s.body}>Clique sur une case pour placer le départ.</p>}
+        {state.phase === "placement" && <p className={s.body}>{T.placement}</p>}
 
         {shownPhase === "jeu" && (
           <>
-            <p className={s.body}>Choisis une direction. Le serpent glisse jusqu'au mur.</p>
+            <p className={s.body}>{T.playing}</p>
             <div className={s.controls}>
               <ArrowPad available={sliding ? [] : availableDirs(state)} last={dirs.at(-1) ?? null} />
               <div className={s.stack}>
-                <Hint k="⌫">Annuler</Hint>
-                <Hint k="R">Recommencer</Hint>
+                <Hint k="⌫">{T.rewind}</Hint>
+                <Hint k="R">{T.retry}</Hint>
               </div>
             </div>
           </>
@@ -140,19 +141,17 @@ export function Game({ difficulty, seed, onMenu, onNewGrid }: Props) {
 
         {shownPhase === "bloqué" && (
           <>
-            <h2 className={s.headline}>Bloqué</h2>
-            <p className={s.body}>
-              Plus aucune direction possible. Il restait {left} case{left > 1 ? "s" : ""}.
-            </p>
+            <h2 className={s.headline}>{T.gameOver}</h2>
+            <p className={s.body}>{T.gameOverBody(left)}</p>
             <div className={s.actions}>
               <Button shortcut="⌫" onClick={undo} autoFocus>
-                Annuler le coup
+                {T.rewind}
               </Button>
               <Button variant="secondary" shortcut="R" onClick={restart}>
-                Rejouer
+                {T.retry}
               </Button>
               <Button variant="secondary" shortcut="Espace" onClick={() => leave(onNewGrid)}>
-                Nouvelle grille
+                {T.nextStage}
               </Button>
             </div>
           </>
@@ -160,16 +159,14 @@ export function Game({ difficulty, seed, onMenu, onNewGrid }: Props) {
 
         {ended && state.startedAt != null && state.endedAt != null && (
           <>
-            <h2 className={s.headline}>Grille remplie</h2>
-            <p className={s.body}>
-              {state.cells} cases en {state.moveEnds.length} coups · {formatMs(state.endedAt - state.startedAt)}
-            </p>
+            <h2 className={s.headline}>{state.rewinds === 0 ? T.perfect : T.clear}</h2>
+            <p className={s.body}>{T.clearBody(state.cells, state.moveEnds.length, formatMs(state.endedAt - state.startedAt))}</p>
             <div className={s.actions}>
               <Button shortcut="Espace" onClick={onNewGrid} autoFocus>
-                Nouvelle grille
+                {T.nextStage}
               </Button>
               <Button variant="secondary" shortcut="R" onClick={restart}>
-                Rejouer
+                {T.retry}
               </Button>
             </div>
           </>

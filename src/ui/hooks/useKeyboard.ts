@@ -16,7 +16,7 @@ export type KeyHandlers = Partial<{
   space: () => void; // Espace
   enter: () => void; // Entrée
   escape: () => void; // Échap
-  p: () => void;
+  h: () => void;
 }>;
 
 /** Écoute le clavier tant que le composant est monté. Les handlers peuvent changer à chaque rendu. */
@@ -35,7 +35,7 @@ export function useKeyboard(handlers: KeyHandlers) {
       else if (k === " ") fn = h.space;
       else if (k === "Enter") fn = h.enter;
       else if (k === "Escape") fn = h.escape;
-      else if (k === "p") fn = h.p;
+      else if (k === "h") fn = h.h;
       if (!fn) return;
       e.preventDefault();
       if (!e.repeat || DIR_KEYS[k]) fn();

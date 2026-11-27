@@ -1,16 +1,11 @@
 import { useMemo, useState } from "react";
-import { DIFFICULTIES, DIFFICULTY_ORDER } from "../../core/grid";
+import { DIFFICULTY_ORDER } from "../../core/grid";
 import type { Difficulty } from "../../core/types";
 import { saveDifficulty, stats } from "../../store/palmares";
 import { Button, DifficultyOption, Hint } from "../components/controls";
 import { useKeyboard } from "../hooks/useKeyboard";
+import { T } from "../texts";
 import s from "./screens.module.css";
-
-const DETAILS: Record<Difficulty, string> = {
-  facile: "5 × 5 · environ 20 cases",
-  normal: "7 × 7 · environ 38 cases",
-  difficile: "9 × 9 · environ 56 cases",
-};
 
 interface Props {
   initial: Difficulty;
@@ -35,35 +30,35 @@ export function Menu({ initial, onPlay, onPalmares }: Props) {
     dir: (d) => (d === "haut" ? shift(-1) : d === "bas" ? shift(1) : undefined),
     space: () => onPlay(selected),
     enter: () => onPlay(selected),
-    p: () => onPalmares(selected),
+    h: () => onPalmares(selected),
   });
 
   return (
     <main className={s.screen}>
       <div className={s.titleBlock}>
-        <h1 className={s.title}>Snake Like</h1>
-        <p className={s.tagline}>Une ligne, toutes les cases, jusqu'au mur.</p>
+        <h1 className={s.title}>{T.game}</h1>
+        <p className={s.tagline}>{T.tagline}</p>
       </div>
 
-      <span className={s.caption}>DIFFICULTÉ</span>
+      <span className={s.caption}>{T.difficulty}</span>
       <div className={s.stack} role="radiogroup" aria-label="Difficulté">
         {DIFFICULTY_ORDER.map((d) => (
-          <DifficultyOption key={d} name={DIFFICULTIES[d].label} detail={DETAILS[d]} wins={wins[d]} selected={d === selected} onSelect={() => select(d)} />
+          <DifficultyOption key={d} name={T.difficulties[d]} detail={T.difficultyDetail[d]} wins={T.clears(wins[d])} selected={d === selected} onSelect={() => select(d)} />
         ))}
       </div>
 
       <div className={s.stack} style={{ marginTop: 8 }}>
         <Button wide shortcut="Espace" onClick={() => onPlay(selected)}>
-          Jouer
+          {T.start}
         </Button>
-        <Button wide variant="secondary" shortcut="P" onClick={() => onPalmares(selected)}>
-          Palmarès
+        <Button wide variant="secondary" shortcut="H" onClick={() => onPalmares(selected)}>
+          {T.highScores}
         </Button>
       </div>
 
       <div className={s.hints}>
-        <Hint k="↑↓">Difficulté</Hint>
-        <Hint k="Espace">Jouer</Hint>
+        <Hint k="↑↓">{T.difficulty}</Hint>
+        <Hint k="Espace">{T.start}</Hint>
       </div>
     </main>
   );

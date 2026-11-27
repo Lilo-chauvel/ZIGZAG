@@ -82,6 +82,17 @@ describe("fin de partie", () => {
     expect(undone.path.at(-1)).toEqual([4, 4]);
   });
 
+  it("compte les Annuler (0 = PERFECT)", () => {
+    const s = play(
+      newGame(G4, "facile", 1),
+      { type: "placer", cell: [0, 0], ...at() },
+      { type: "glisser", dir: "droite", ...at() },
+      { type: "annuler" },
+    );
+    expect(s.rewinds).toBe(1);
+    expect(play(s, { type: "recommencer" }).rewinds).toBe(0);
+  });
+
   it("Annuler sans coup revient au placement", () => {
     const s = play(newGame(G4, "facile", 1), { type: "placer", cell: [0, 0], ...at() }, { type: "annuler" });
     expect(s.phase).toBe("placement");

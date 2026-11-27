@@ -19,9 +19,9 @@ export interface DifficultyConf {
 }
 
 export const DIFFICULTIES: Record<Difficulty, DifficultyConf> = {
-  facile: { label: "Facile", size: 5, minFill: 0.7, minDeadEnds: 0 },
-  normal: { label: "Normal", size: 7, minFill: 0.72, minDeadEnds: 4 },
-  difficile: { label: "Difficile", size: 9, minFill: 0.65, minDeadEnds: 20 },
+  facile: { label: "EASY", size: 5, minFill: 0.7, minDeadEnds: 0 },
+  normal: { label: "NORMAL", size: 7, minFill: 0.72, minDeadEnds: 4 },
+  difficile: { label: "HARD", size: 9, minFill: 0.65, minDeadEnds: 20 },
 };
 
 export const DIFFICULTY_ORDER: Difficulty[] = ["facile", "normal", "difficile"];

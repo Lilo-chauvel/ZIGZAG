@@ -1,10 +1,11 @@
 import { useMemo, useState } from "react";
-import { DIFFICULTIES, DIFFICULTY_ORDER, generate, replay } from "../../core/grid";
+import { DIFFICULTY_ORDER, generate, replay } from "../../core/grid";
 import type { Difficulty } from "../../core/types";
 import { formatMs, list, stats, type Win } from "../../store/palmares";
 import { Board } from "../components/Board";
 import { Hint, Tabs } from "../components/controls";
 import { useKeyboard } from "../hooks/useKeyboard";
+import { T } from "../texts";
 import s from "./screens.module.css";
 
 interface Props {
@@ -26,13 +27,13 @@ function Row({ win, best, onReplay }: { win: Win; best: boolean; onReplay: () =>
   return (
     <button type="button" className={s.row} onClick={onReplay}>
       <span className={s.thumb}>
-        <Board grid={grid} path={path} phase="gagné" hideStartRing label={`Grille #${win.seed} réussie`} />
+        <Board grid={grid} path={path} phase="gagné" hideStartRing label={`${T.stage(win.seed)} clear`} />
       </span>
       <span className={s.rowText}>
-        <span className={s.rowTitle}>Grille #{String(win.seed).padStart(3, "0")}</span>
+        <span className={s.rowTitle}>{T.stage(win.seed)}</span>
         <span className={[s.rowMeta, best ? s.rowBest : ""].join(" ")}>
-          {win.moves} coups · {formatMs(win.ms)}
-          {best ? " · record" : ""}
+          {T.dashes(win.moves)} · {formatMs(win.ms)}
+          {best ? ` · ${T.best}` : ""}
         </span>
       </span>
       <span className={s.rowDate}>{dateFmt.format(win.date)}</span>
@@ -57,29 +58,29 @@ export function Palmares({ initial, onMenu, onReplay }: Props) {
   return (
     <main className={s.screen}>
       <div className={s.header}>
-        <h1 className={s.headline}>Palmarès</h1>
-        <Hint k="Échap">Menu</Hint>
+        <h1 className={s.headline}>{T.highScores}</h1>
+        <Hint k="Échap">{T.menu}</Hint>
       </div>
 
-      <Tabs items={DIFFICULTY_ORDER.map((d) => ({ id: d, label: DIFFICULTIES[d].label }))} value={tab} onChange={setTab} />
+      <Tabs items={DIFFICULTY_ORDER.map((d) => ({ id: d, label: T.difficulties[d] }))} value={tab} onChange={setTab} />
 
       <div className={s.stats}>
         <div className={s.stat}>
           <span className={s.statValue}>{st.wins}</span>
-          <span className={s.caption}>RÉUSSIES</span>
+          <span className={s.caption}>{T.statClears}</span>
         </div>
         <div className={s.stat}>
           <span className={s.statValue}>{st.bestMs == null ? "–" : formatMs(st.bestMs)}</span>
-          <span className={s.caption}>MEILLEUR TEMPS</span>
+          <span className={s.caption}>{T.statBest}</span>
         </div>
         <div className={s.stat}>
           <span className={[s.statValue, st.streak > 0 ? s.statAccent : ""].join(" ")}>{st.streak}</span>
-          <span className={s.caption}>SÉRIE</span>
+          <span className={s.caption}>{T.statCombo}</span>
         </div>
       </div>
 
       {wins.length === 0 ? (
-        <p className={s.empty}>Aucune grille {DIFFICULTIES[tab].label.toLowerCase()} réussie pour l'instant. Termine une grille pour la retrouver ici.</p>
+        <p className={s.empty}>{T.empty(tab)}</p>
       ) : (
         <div className={s.list}>
           {wins.slice(0, MAX_ROWS).map((w) => (
@@ -89,8 +90,8 @@ export function Palmares({ initial, onMenu, onReplay }: Props) {
       )}
 
       <div className={s.hints}>
-        <Hint k="←→">Difficulté</Hint>
-        <Hint k="Entrée">Rejouer la grille</Hint>
+        <Hint k="←→">{T.difficulty}</Hint>
+        <Hint k="Entrée">{T.replay}</Hint>
       </div>
     </main>
   );
