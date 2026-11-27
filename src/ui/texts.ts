@@ -21,7 +21,8 @@ export const T = {
   menu: "Menu",
   stage: (seed: number) => `STAGE #${String(seed).padStart(3, "0")}`,
 
-  placement: "Clique sur une case pour choisir ton START.",
+  placement: "Choisis ta case de départ aux flèches ou à la souris.",
+  moveCursor: "Choisir",
   playing: "Choisis une direction : tu dashes jusqu'au mur.",
   rewind: "REWIND",
   retry: "RETRY",

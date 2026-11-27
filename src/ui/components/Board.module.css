@@ -17,5 +17,7 @@
 .head { fill: var(--head); }
 .stuck { fill: var(--danger); }
 .ring { fill: none; stroke: var(--success); }
-.ghost { fill: none; stroke: var(--ghost); }
+/* Curseur de placement : bien visible, pulsation légère (coupée par prefers-reduced-motion). */
+.ghost { fill: none; stroke: var(--head); animation: pulse 900ms ease-in-out infinite alternate; }
+@keyframes pulse { from { opacity: 1; } to { opacity: 0.35; } }
 .hit { fill: transparent; cursor: pointer; }
