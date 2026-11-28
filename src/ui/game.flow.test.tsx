@@ -63,6 +63,28 @@ it("joue une grille jusqu'à la victoire et la retrouve dans le Palmarès", () =
   expect(screen.getByText(T.stage(42))).toBeTruthy();
 });
 
+it("permet de changer de départ avant le premier dash, sans perdre le PERFECT", () => {
+  const seed = 42;
+  const { grid, solution } = generate("normal", seed);
+  const { container } = render(<Game difficulty="normal" seed={seed} onMenu={() => {}} onNewGrid={() => {}} />);
+  const other = grid.flatMap((row, r) => [...row].map((_, c) => [r, c] as const)).find(([r, c]) => isOpen(grid, r, c) && (r !== solution.start[0] || c !== solution.start[1]))!;
+
+  clickCell(container, grid, other);
+  expect(screen.getByText(T.changeStart)).toBeTruthy();
+  clickCell(container, grid, solution.start); // on se ravise
+
+  fireEvent.keyDown(window, { key: KEYS[solution.moves[0]] });
+  flush();
+  expect(screen.queryByText(T.changeStart)).toBeNull(); // départ figé après le premier dash
+  for (const d of solution.moves.slice(1)) {
+    fireEvent.keyDown(window, { key: KEYS[d] });
+    flush();
+  }
+  flush();
+  expect(screen.getByText(T.perfect)).toBeTruthy();
+  expect(list("normal")[0]).toMatchObject({ seed, start: solution.start });
+});
+
 it("SOLVE rejoue la solution et la classe comme non réussie", () => {
   const seed = 42;
   const { grid, solution } = generate("normal", seed);

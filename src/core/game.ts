@@ -54,6 +54,11 @@ export function availableDirs(s: GameState): Dir[] {
   return DIR_NAMES.filter((d) => slide(isFree, head(s), d).length > 0);
 }
 
+/** Vrai tant qu'on peut (re)poser le départ : au placement, ou départ posé sans aucun dash. */
+export function canPlace(s: GameState): boolean {
+  return s.phase === "placement" || ((s.phase === "jeu" || s.phase === "bloqué") && s.moveEnds.length === 0);
+}
+
 /** Phase après un coup : gagné, bloqué, ou on continue. */
 function settle(s: GameState, now: number): GameState {
   if (s.path.length === s.cells) return { ...s, phase: "gagné", endedAt: now };
@@ -65,7 +70,9 @@ function settle(s: GameState, now: number): GameState {
 export function reduce(s: GameState, a: Action): GameState {
   switch (a.type) {
     case "placer": {
-      if (s.phase !== "placement" || !isOpen(s.grid, a.cell[0], a.cell[1])) return s;
+      // Le départ reste modifiable tant qu'aucun dash n'a été joué.
+      if (!canPlace(s) || !isOpen(s.grid, a.cell[0], a.cell[1])) return s;
+      if (s.path.length && cellKey(s.path[0]) === cellKey(a.cell)) return s;
       return settle({ ...s, path: [a.cell], moveEnds: [], startedAt: a.now }, a.now);
     }
     case "glisser": {
@@ -77,7 +84,8 @@ export function reduce(s: GameState, a: Action): GameState {
     }
     case "annuler": {
       if (s.phase === "placement" || s.phase === "gagné") return s;
-      if (s.moveEnds.length === 0) return { ...s, path: [], phase: "placement", startedAt: null, endedAt: null, rewinds: s.rewinds + 1 };
+      // Retirer un départ sans dash n'est pas un REWIND : on peut changer de départ sans perdre le PERFECT.
+      if (s.moveEnds.length === 0) return { ...s, path: [], phase: "placement", startedAt: null, endedAt: null };
       const moveEnds = s.moveEnds.slice(0, -1);
       const keep = moveEnds.length ? moveEnds[moveEnds.length - 1] : 1;
       return { ...s, path: s.path.slice(0, keep), moveEnds, phase: "jeu", endedAt: null, rewinds: s.rewinds + 1 };

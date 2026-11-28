@@ -16,6 +16,7 @@ npm run build    # site statique dans dist/
 | Touche | Action |
 |---|---|
 | Flèches, ZQSD, WASD (ou souris) | choisir le START, puis Espace / Entrée |
+| Clic ou toucher sur une autre case | déplacer le START, tant qu'aucun dash n'est joué |
 | Flèches, ZQSD, WASD (ou glisser du doigt) | dash |
 | ⌫ | REWIND (annule le dernier dash) |
 | R | RETRY (recommence le stage) |

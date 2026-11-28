@@ -18,6 +18,28 @@ describe("placement", () => {
     expect(s.path).toEqual([[0, 0]]);
     expect(s.startedAt).toBe(5);
   });
+  it("permet de changer de départ tant qu'aucun dash n'est joué", () => {
+    const s = play(newGame(G4, "facile", 1), { type: "placer", cell: [0, 0], ...at() }, { type: "placer", cell: [2, 1], ...at(3) });
+    expect(s.phase).toBe("jeu");
+    expect(s.path).toEqual([[2, 1]]);
+    expect(s.rewinds).toBe(0);
+  });
+  it("refuse un trou comme nouveau départ", () => {
+    const placed = play(newGame(G4, "facile", 1), { type: "placer", cell: [0, 0], ...at() });
+    expect(play(placed, { type: "placer", cell: [3, 3], ...at() })).toBe(placed);
+  });
+  it("fige le départ dès le premier dash", () => {
+    const moved = play(newGame(G4, "facile", 1), { type: "placer", cell: [0, 0], ...at() }, { type: "glisser", dir: "droite", ...at() });
+    expect(play(moved, { type: "placer", cell: [2, 1], ...at() })).toBe(moved);
+  });
+  it("permet de déplacer un départ isolé, bloqué d'emblée", () => {
+    const G: Grid = [".#..", "#...", "....", "...."];
+    const stuck = play(newGame(G, "facile", 1), { type: "placer", cell: [0, 0], ...at() });
+    expect(stuck.phase).toBe("bloqué");
+    const s = play(stuck, { type: "placer", cell: [2, 2], ...at() });
+    expect(s.phase).toBe("jeu");
+    expect(s.path).toEqual([[2, 2]]);
+  });
 });
 
 describe("glissade", () => {
@@ -97,6 +119,7 @@ describe("fin de partie", () => {
     const s = play(newGame(G4, "facile", 1), { type: "placer", cell: [0, 0], ...at() }, { type: "annuler" });
     expect(s.phase).toBe("placement");
     expect(s.path).toEqual([]);
+    expect(s.rewinds).toBe(0); // changer de départ ne coûte pas le PERFECT
   });
 
   it("Recommencer garde la grille et vide le chemin", () => {

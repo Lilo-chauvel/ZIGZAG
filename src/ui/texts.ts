@@ -25,6 +25,8 @@ export const T = {
   moveCursor: "Choisir",
   playing: "Choisis une direction : tu dashes jusqu'au mur.",
   playingTouch: "Glisse sur la grille ou touche une flèche : tu dashes jusqu'au mur.",
+  changeStart: "Clique une autre case pour déplacer ton départ.",
+  changeStartTouch: "Touche une autre case pour déplacer ton départ.",
   rewind: "REWIND",
   retry: "RETRY",
   nextStage: "NEXT STAGE",

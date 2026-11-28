@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useReducer, useRef, useState, type PointerEvent } from "react";
 import { centerCell, moveCursor } from "../../core/cursor";
-import { availableDirs, dirsOf, newGame, reduce } from "../../core/game";
+import { availableDirs, canPlace, dirsOf, newGame, reduce } from "../../core/game";
 import { DIFFICULTIES, generate } from "../../core/grid";
 import type { Cell, Difficulty, Dir } from "../../core/types";
 import { addMiss, addWin } from "../../store/palmares";
@@ -98,7 +98,13 @@ export function Game({ difficulty, seed, onMenu, onNewGrid }: Props) {
     }, reduced ? 0 : cssMs("--step-duration", 55) * 3);
     return () => clearTimeout(t);
   }, [solving, sliding, state.phase, reduced]);
-  const place = (cell: Cell) => dispatch({ type: "placer", cell, now: Date.now() });
+  const place = (cell: Cell) => {
+    if (solving) return;
+    setCursor(cell);
+    dispatch({ type: "placer", cell, now: Date.now() });
+  };
+  // Départ posé mais aucun dash joué : on peut encore le déplacer en touchant une autre case.
+  const canMoveStart = canPlace(state) && !solving && !sliding;
 
   useKeyboard({
     dir: move,
@@ -147,7 +153,7 @@ export function Game({ difficulty, seed, onMenu, onNewGrid }: Props) {
           ghost={state.phase === "placement" ? cursor : null}
           hideStartRing={win.stage === "anneau" || ended}
           onCellHover={state.phase === "placement" ? (c) => c && setCursor(c) : undefined}
-          onCellClick={state.phase === "placement" ? place : undefined}
+          onCellClick={canMoveStart ? place : undefined}
         />
       </div>
       {ring && <WinRing {...ring} />}
@@ -169,6 +175,7 @@ export function Game({ difficulty, seed, onMenu, onNewGrid }: Props) {
         {shownPhase === "jeu" && (
           <>
             <p className={s.body}>{solving ? T.solving : touch ? T.playingTouch : T.playing}</p>
+            {canMoveStart && state.phase === "jeu" && <p className={s.body}>{touch ? T.changeStartTouch : T.changeStart}</p>}
             <div className={s.controls}>
               <ArrowPad available={sliding || solving ? [] : availableDirs(state)} last={dirs.at(-1) ?? null} onDir={solving ? undefined : move} />
               {!solving && (
