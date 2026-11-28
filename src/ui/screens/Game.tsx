@@ -10,6 +10,7 @@ import { ringOrigin, WinRing } from "../components/WinRing";
 import { useKeyboard } from "../hooks/useKeyboard";
 import { cssMs, useReducedMotion } from "../hooks/useReducedMotion";
 import { useSlide } from "../hooks/useSlide";
+import { useTouch } from "../hooks/useTouch";
 import { useWinSequence } from "../hooks/useWinSequence";
 import { T } from "../texts";
 import s from "./screens.module.css";
@@ -27,6 +28,7 @@ export function Game({ difficulty, seed, onMenu, onNewGrid }: Props) {
   // Curseur de placement (clavier et souris) : la case où le START sera posé.
   const [cursor, setCursor] = useState<Cell>(() => centerCell(gen.grid));
   const reduced = useReducedMotion();
+  const touch = useTouch();
   const { visible, sliding } = useSlide(state.path.length, reduced);
   const won = state.phase === "gagné";
   const win = useWinSequence(won && !sliding, state.path.length, reduced);
@@ -128,7 +130,9 @@ export function Game({ difficulty, seed, onMenu, onNewGrid }: Props) {
   return (
     <main className={s.screen}>
       <div className={s.topBar}>
-        <Hint k="Échap">{T.menu}</Hint>
+        <Hint k="Échap" onClick={() => leave(onMenu)}>
+          {T.menu}
+        </Hint>
         <span className={s.seed}>{T.stage(seed)}</span>
       </div>
       <Hud caption={`${T.difficulties[difficulty]} · ${conf.size} × ${conf.size}`} value={`${visible} / ${state.cells}`} tone={tone} />
@@ -151,7 +155,7 @@ export function Game({ difficulty, seed, onMenu, onNewGrid }: Props) {
       <section className={s.foot} aria-live="polite">
         {state.phase === "placement" && (
           <>
-            <p className={s.body}>{T.placement}</p>
+            <p className={s.body}>{touch ? T.placementTouch : T.placement}</p>
             <div className={s.hints}>
               <Hint k="↑↓←→">{T.moveCursor}</Hint>
               <Hint k="Espace">{T.start}</Hint>
@@ -164,13 +168,17 @@ export function Game({ difficulty, seed, onMenu, onNewGrid }: Props) {
 
         {shownPhase === "jeu" && (
           <>
-            <p className={s.body}>{solving ? T.solving : T.playing}</p>
+            <p className={s.body}>{solving ? T.solving : touch ? T.playingTouch : T.playing}</p>
             <div className={s.controls}>
-              <ArrowPad available={sliding || solving ? [] : availableDirs(state)} last={dirs.at(-1) ?? null} />
+              <ArrowPad available={sliding || solving ? [] : availableDirs(state)} last={dirs.at(-1) ?? null} onDir={solving ? undefined : move} />
               {!solving && (
                 <div className={s.stack}>
-                  <Hint k="⌫">{T.rewind}</Hint>
-                  <Hint k="R">{T.retry}</Hint>
+                  <Hint k="⌫" onClick={undo}>
+                    {T.rewind}
+                  </Hint>
+                  <Hint k="R" onClick={restart}>
+                    {T.retry}
+                  </Hint>
                   <Hint k="H" onClick={solveIt}>
                     {T.solve}
                   </Hint>

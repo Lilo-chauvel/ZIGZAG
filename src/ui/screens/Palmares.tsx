@@ -81,7 +81,9 @@ export function Palmares({ initial, onMenu, onReplay }: Props) {
     <main className={s.screen}>
       <div className={s.header}>
         <h1 className={s.headline}>{T.highScores}</h1>
-        <Hint k="Échap">{T.menu}</Hint>
+        <Hint k="Échap" onClick={onMenu}>
+          {T.menu}
+        </Hint>
       </div>
 
       <Tabs items={DIFFICULTY_ORDER.map((d) => ({ id: d, label: T.difficulties[d] }))} value={tab} onChange={setTab} />

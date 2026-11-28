@@ -29,11 +29,20 @@ export function Hint({ k, children, onClick }: { k: ReactNode; children: ReactNo
   );
 }
 
-/** Pavé fléché en T inversé : direction jouée en Active, directions immobiles grisées. */
-export function ArrowPad({ available, last }: { available: Dir[]; last: Dir | null }) {
-  const k = (d: Dir) => <Key dir={d} active={d === last} disabled={!available.includes(d)} />;
+/** Pavé fléché en T inversé : direction jouée en Active, directions immobiles grisées. Touchable si `onDir` (mobile). */
+export function ArrowPad({ available, last, onDir }: { available: Dir[]; last: Dir | null; onDir?: (d: Dir) => void }) {
+  const k = (d: Dir) => {
+    const key = <Key dir={d} active={d === last} disabled={!available.includes(d)} />;
+    return onDir ? (
+      <button type="button" className={s.padButton} aria-label={`Dash ${d}`} onClick={() => onDir(d)}>
+        {key}
+      </button>
+    ) : (
+      key
+    );
+  };
   return (
-    <div className={s.pad} aria-hidden="true">
+    <div className={s.pad} aria-hidden={onDir ? undefined : true}>
       <div className={s.padRow}>{k("haut")}</div>
       <div className={s.padRow}>
         {k("gauche")}

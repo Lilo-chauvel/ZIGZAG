@@ -21,8 +21,10 @@ export const T = {
   stage: (seed: number) => `STAGE #${String(seed).padStart(3, "0")}`,
 
   placement: "Choisis ta case de départ aux flèches ou à la souris.",
+  placementTouch: "Touche une case pour y poser ton départ.",
   moveCursor: "Choisir",
   playing: "Choisis une direction : tu dashes jusqu'au mur.",
+  playingTouch: "Glisse sur la grille ou touche une flèche : tu dashes jusqu'au mur.",
   rewind: "REWIND",
   retry: "RETRY",
   nextStage: "NEXT STAGE",

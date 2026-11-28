@@ -163,3 +163,22 @@ it("une touche pressée pendant une glissade est jouée ensuite", () => {
   const expected = [m1, m2].reduce((st, dir) => reduce(st, { type: "glisser", dir, now: 0 }), reduce(newGame(grid, "normal", seed), { type: "placer", cell: solution.start, now: 0 }));
   expect(container.textContent).toContain(`${expected.path.length} / ${expected.cells}`);
 });
+
+it("se joue entièrement au doigt : pavé fléché, REWIND, RETRY et Menu cliquables", () => {
+  const seed = 42;
+  const { grid, solution } = generate("normal", seed);
+  const onMenu = vi.fn();
+  const { container } = render(<Game difficulty="normal" seed={seed} onMenu={onMenu} onNewGrid={() => {}} />);
+  clickCell(container, grid, solution.start);
+  const after1 = reduce(reduce(newGame(grid, "normal", seed), { type: "placer", cell: solution.start, now: 0 }), { type: "glisser", dir: solution.moves[0], now: 0 });
+  fireEvent.click(screen.getByRole("button", { name: `Dash ${solution.moves[0]}` }));
+  flush();
+  expect(container.textContent).toContain(`${after1.path.length} / ${after1.cells}`);
+  fireEvent.click(screen.getByRole("button", { name: new RegExp(T.rewind) }));
+  flush();
+  expect(container.textContent).toContain(`1 / ${after1.cells}`);
+  fireEvent.click(screen.getByRole("button", { name: new RegExp(T.retry) }));
+  expect(screen.getByText(T.placement)).toBeTruthy();
+  fireEvent.click(screen.getByRole("button", { name: new RegExp(T.menu) }));
+  expect(onMenu).toHaveBeenCalled();
+});

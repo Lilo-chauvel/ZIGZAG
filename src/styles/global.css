@@ -25,6 +25,8 @@ body {
 
 button {
   font: inherit;
+  touch-action: manipulation; /* pas de zoom au double tap */
+  -webkit-tap-highlight-color: transparent;
 }
 
 :focus-visible {

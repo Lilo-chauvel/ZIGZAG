@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type FocusEvent } from "react";
 import { DIFFICULTY_ORDER } from "../../core/grid";
 import type { Difficulty } from "../../core/types";
 import { saveDifficulty } from "../../store/palmares";
@@ -14,6 +14,15 @@ interface Props {
 }
 
 type Item = "start" | "scores";
+
+/** Focus venu du clavier (Tab) : un tap ou un clic ne doit pas réorganiser le menu sous le doigt. */
+const keyboardFocus = (e: FocusEvent) => {
+  try {
+    return e.target.matches(":focus-visible");
+  } catch {
+    return true;
+  }
+};
 
 export function Menu({ initial, onPlay, onPalmares }: Props) {
   const [focus, setFocus] = useState<Item>("start");
@@ -48,7 +57,7 @@ export function Menu({ initial, onPlay, onPalmares }: Props) {
       </div>
 
       <div className={s.stack}>
-        <div onFocus={() => setFocus("start")} className={s.stack}>
+        <div onFocus={(e) => keyboardFocus(e) && setFocus("start")} className={s.stack}>
           <Button wide variant={focus === "start" ? "primary" : "secondary"} shortcut={focus === "start" ? "Espace" : undefined} onClick={() => onPlay(selected)}>
             {T.start}
           </Button>
@@ -59,7 +68,7 @@ export function Menu({ initial, onPlay, onPalmares }: Props) {
             </>
           )}
         </div>
-        <div onFocus={() => setFocus("scores")}>
+        <div onFocus={(e) => keyboardFocus(e) && setFocus("scores")}>
           <Button wide variant={focus === "scores" ? "primary" : "secondary"} shortcut="H" onClick={() => onPalmares(selected)}>
             {T.highScores}
           </Button>
